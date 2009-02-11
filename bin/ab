@@ -1,0 +1,295 @@
+#!/bin/bash --
+#
+# Checks out svn on asbo and then builds it on other machines.
+# Run from crontab to update/build before work.
+#
+
+unset LOCKSHELD
+set -e
+
+hostname=$(cut -d. -f1 <<< $(hostname))
+if [ -z "$APAMA_MACHTYPE" ]; then
+	APAMA_MACHTYPE=$hostname
+fi
+
+asboopt="-j4"
+badboyopt="-j2"
+vegaopt="-j2"
+polarisopt="-j2"
+
+#
+# call svn with appropriate options
+#
+function dosvnup()
+{
+	svn up
+}
+	
+#
+# call make with appropriate options
+#
+function domake()
+{
+	if which gmake 2>/dev/null | egrep '^/' &> /dev/null; then
+		makename=gmake
+	else
+		makename=make
+	fi
+	o=${hostname}opt
+	eval o=\$$o
+	echo $makename $o $*
+	$makename $o $*
+}
+	
+#
+# remove all uncleaned locks
+#
+function cleanup()
+{
+	for i in $LOCKSHELD; do
+		if [ -f "$HOME/.lock-$i" ]; then
+			_unlock $i
+		else
+			_munlock $i
+		fi
+	done
+}
+
+#
+# take out lock (multiple holders) 
+#
+function _mlock()
+{
+	lockfile="$HOME/.lock-$1"
+	mlockfile="$HOME/.mlock-$1"
+
+	if echo $LOCKSHELD | grep $1 >/dev/null; then return; fi
+	echo "aquiring $1..."
+
+	while true; do
+		while [ -f "$lockfile" ]; do sleep 1; done
+		set -o noclobber
+		echo "$$" > "$lockfile" 2>/dev/null && break || true
+	done	
+	echo "$$" >> "$mlockfile"
+	rm -f "$lockfile"
+
+	LOCKSHELD="$LOCKSHELD $1"
+}
+
+#
+# take out lock
+#
+function _lock()
+{
+	lockfile="$HOME/.lock-$1"
+	mlockfile="$HOME/.mlock-$1"
+
+	if echo $LOCKSHELD | grep $1 >/dev/null; then return; fi
+	echo "aquiring $1..."
+
+	while true; do
+		while [ -f "$lockfile" ] || [ -f "$mlockfile" ]; do sleep 1; done
+		set -o noclobber
+		echo "$$" > "$lockfile" 2>/dev/null && break || true
+	done	
+
+	LOCKSHELD="$LOCKSHELD $1"
+}
+
+	
+#
+# release lock()
+function _unlock()
+{
+	lockfile="$HOME/.lock-$1"
+	
+	if ! echo $LOCKSHELD | grep $1 >/dev/null; then return; fi
+	echo "releasing $1..."
+		
+	LOCKSHELD="`echo $LOCKSHELD | sed "s, *$1,,g"`"
+		
+	if [ -f "$lockfile" ] && grep "^$$$" "$lockfile" >/dev/null; then
+		rm -f "$lockfile"
+	fi
+}
+
+#
+# release mlock() 
+function _munlock()
+{
+	munlockfile="$HOME/.mlock-$1"
+	
+	if ! echo $LOCKSHELD | grep $1 >/dev/null; then return; fi
+	echo "releasing $1..."
+		
+	LOCKSHELD="`echo $LOCKSHELD | sed "s, *$1,,g"`"
+		
+	_lock locklock
+	if [ -f "$munlockfile" ] && grep "^$$$" "$munlockfile" >/dev/null; then
+		rm -f "$HOME/.locktemp-$1"
+		grep -v "^$$$" "$munlockfile" > "$HOME/.locktemp-$1" || true
+		mv -f "$HOME/.locktemp-$1" "$munlockfile"
+		if [ -z "`cat "$munlockfile"`" ]; then
+			rm -f "$munlockfile"
+		fi
+	fi
+	_unlock locklock
+}
+
+#
+# if on asbo, update svn and make clean, then make
+# on other machines, wait for asbo to clean, then make
+function ab_auto()
+{
+	case "$hostname" in
+		"asbo")
+			(_lock svn-src; cd $HOME/apama-src ; dosvnup; domake clean; _unlock svn-src;)&
+			(_lock svn-test; cd $HOME/apama-test ; dosvnup; domake clean; _unlock svn-test;)&
+			sleep 2;
+			ab_build
+		;;
+		*)
+			ab_build
+	esac
+	wait
+}
+
+#
+# if no build is running, update svn
+#
+function ab_update()
+{
+	(_lock svn-src; cd $HOME/apama-src ; dosvnup; _unlock svn-src; )&
+	(_lock svn-test; cd $HOME/apama-test ; dosvnup; _unlock svn-test;)&
+	wait
+}
+
+#
+# if no update and no test is running, build
+#
+function ab_build()
+{
+	_lock test-$APAMA_MACHTYPE
+	_lock build-$APAMA_MACHTYPE
+	_mlock svn-src
+	cd $HOME/apama-src
+	if [ -f "$HOME/.buildtype-$APAMA_MACHTYPE" ]; then
+		MODE=`cat $HOME/.buildtype-$APAMA_MACHTYPE`
+	else
+		MODE=release
+		echo $MODE > "$HOME/.buildtype-$APAMA_MACHTYPE"
+	fi
+	if [ "$1" != "$MODE" ]; then
+		echo "Changing build mode to $1"
+		MODE=$1
+		set +C
+		echo $MODE > "$HOME/.buildtype-$APAMA_MACHTYPE"
+		_munlock svn-src
+		_lock svn-src
+		domake clean
+		_unlock svn-src
+		_mlock svn-src
+	fi
+	case "$MODE" in
+		"release")
+			domake
+		;;
+		"debug")
+			domake DEBUG=true
+		;;
+		*)
+			echo "Unknown build type: $MODE"
+			exit 3
+		;;
+	esac
+	_munlock svn-src
+	_unlock build-$APAMA_MACHTYPE
+	_lock build-test-$APAMA_MACHTYPE
+	_mlock svn-test
+	cd $HOME/apama-test
+	case "$MODE" in
+		"release")
+			domake
+		;;
+		"debug")
+			domake DEBUG=true
+		;;
+		*)
+			echo "Unknown build type: $MODE"
+			exit 3
+		;;
+	esac
+	_munlock svn-src
+	_munlock svn-test
+	_unlock build-test-$APAMA_MACHTYPE;
+	_unlock test-$APAMA_MACHTYPE
+}
+
+#
+# if no build is running, run a test
+#
+function ab_test()
+{
+	TEST=$1
+	shift
+	_mlock test-$APAMA_MACHTYPE
+	_mlock build-$APAMA_MACHTYPE
+	_mlock build-test-$APAMA_MACHTYPE
+	_lock test-$APAMA_MACHTYPE-$TEST
+	mkdir -p $HOME/testresults/$TEST/$APAMA_MACHTYPE
+	ln -sf $HOME/testresults/$TEST/$APAMA_MACHTYPE $TEST/Output/outputlink
+	./runTest.py -o outputlink "$@" $TEST
+	_unlock test-$APAMA_MACHTYPE-$TEST
+	_mlock build-test-$APAMA_MACHTYPE
+	_mlock build-$APAMA_MACHTYPE
+	_munlock test-$APAMA_MACHTYPE
+}
+
+#
+# remove all lock files (!dangerous)
+#
+function ab_cleanlocks()
+{
+	rm -f $HOME/.lock-* $HOME/.mlock-*
+}
+
+
+#
+# print the status of the system
+#
+function ab_status()
+{
+	for i in $HOME/.lock-* $HOME/.mlock-*;
+	do
+		if [ -f $i ]; then
+			echo $i: `cat $i 2>/dev/null`
+		fi
+	done
+}
+
+function usage()
+{
+	echo "Usage: $0 [auto|update|build|test|status|cleanlocks] <options>"
+}
+
+command="$1"
+
+if [ "" == "$command" ]; then
+	usage
+	exit 1
+fi
+
+shift
+
+trap cleanup INT TERM EXIT
+
+case "$command" in
+	auto|build|update|test|status|cleanlocks)
+		ab_$command "$@"
+	;;
+	*)
+		usage
+		exit 1
+	;;
+esac

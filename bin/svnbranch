@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+
+set -e
+
+MASTER=int/4.0.0.0
+BRANCHCACHE="/tmp/.svnbranch-$USER-branchcache"
+
+usage() {
+	echo "Usage: svnbranch [--new <branch>|--delete <branch>|<branch>|--update]"
+}
+
+create() {
+	NEW="$1"
+	BASIS="$2"
+	if [ "${ROOT:0:4}" = "svn:" ]; then
+		WRITABLE="`sed 's/svn:/http:/;s,$,/dev,' <<< "$ROOT"`"
+		echo -n "Switching to writable repository"
+		svn switch --relocate "$ROOT" "$WRITABLE"
+		echo "."
+		OLDROOT="$ROOT"
+		ROOT="$WRITABLE"
+	fi
+
+	echo -n "Creating branch $NEW from $BASIS"
+	svn cp -m"Creating new branch $NEW based on $BASIS" "$ROOT/branches/$BASIS" "$ROOT/branches/$NEW"
+	echo "."
+
+	if [ -n "$WRITABLE" ]; then	
+		echo -n "Switching back to read-only repository"
+		svn switch --relocate "$WRITABLE" "$OLDROOT"
+		echo "."
+		ROOT="$OLDROOT"
+	fi
+
+}
+delete() {
+	DEL="$1"
+	echo -n "Deleting branch $DEL"
+	echo -n " - I'm afraid I can't let you do that Dave"
+	echo "."
+}
+switch() {
+	SW="$1"
+	echo -n "Switching to branch $SW: "
+	URL="`svn info | sed -n '/^URL/s,URL: \(.*\)'"$CURRENT"'\(.*\),\1'"$SW"'\2,p'`"
+	svn switch "$URL"
+}
+
+if ! [ -d .svn ]; then
+	echo "Not in an svn repository"
+	exit 1
+fi
+
+ROOT="`svn info | sed -n '/^Repository Root:/s/[^:]*: //p'`"
+CURRENT="`svn info | sed -n "/^URL/s,URL: $ROOT/branches/\([^/]*/[^/]*\)/.*,\1,p"`"
+if ! [ -f "$BRANCHCACHE" ]; then
+	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' > "$BRANCHCACHE"
+	svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
+fi
+BRANCHES="`cat "$BRANCHCACHE"`"
+case $1 in 
+	"")
+		echo "Branches:"
+		# list all branches
+		# hilight current
+		for i in $BRANCHES; do
+			if [ "$i" == "$CURRENT" ]; then
+				echo '* ' $i
+			else
+				echo "   $i"
+			fi
+		done
+	;;
+	"--update"|"-u")
+		svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' > "$BRANCHCACHE"
+		svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
+	;;
+	"-c"|"-C"|"--create"|"-n"|"-N"|"--new")
+		if [ -z "$2" ]; then
+			usage
+			exit 1
+		fi
+		NEW="`sed 's,/*$,,' <<< $2`"
+		if [ "$CURRENT" == "$NEW" ]; then
+			echo "Already on branch $2"
+			exit 1
+		fi
+		if [ -n "$3" ]; then
+			BASIS="`sed 's,/*$,,' <<< $3`"
+		else 
+			BASIS="$CURRENT"
+		fi
+		basisexists=""
+		for i in $BRANCHES; do
+			if [ "$i" == "$NEW" ]; then
+				echo "Branch $NEW already exists"
+				exit 1
+			fi
+			if [ "$i" == "$BASIS" ]; then
+				basisexists="1"
+			fi
+		done
+		if [ "${NEW:0:4}" != "dev/" ]; then
+			echo "Branch not under dev/; cannot create"
+			exit 1
+		fi
+		if [ -z "$basisexists" ]; then
+			echo "Branch $BASIS does not exist, cannot copy from it"
+			exit 1
+		fi
+		
+	   # create a branch
+	   # and switch to it
+		create "$NEW" "$BASIS"
+		switch "$NEW"
+		echo "."
+	;;
+	"-d"|"-D"|"--delete"|"-r"|"-R"|"--remove")
+		if [ -z "$2" ]; then
+			usage
+			exit 1
+		fi
+		DEL="`sed 's,/*$,,' <<< $2`"
+		for i in $BRANCHES; do
+			if [ "$i" == "$DEL" ]; then
+				# delete a branch
+				delete "$DEL"
+				# switch back to $MASTER
+				if [ "$CURRENT" == "$DEL" ]; then
+					switch "$MASTER"
+				fi
+				exit 0
+			fi
+		done
+		echo "Branch $DEL does not exist"
+		exit 1
+	;;
+	"-"*)
+		usage
+		exit 0
+	;;
+	*)
+		SW="`sed 's,/*$,,' <<< $1`"
+		if [ "$CURRENT" == "$SW" ]; then
+			echo "Already on branch $SW"
+			exit 1
+		fi
+		for i in $BRANCHES; do
+			if [ "$i" == "$SW" ]; then
+				switch "$SW"
+				exit 0
+			fi
+		done
+		echo "Branch $SW does not exist"
+		exit 1
+	;;
+esac
+

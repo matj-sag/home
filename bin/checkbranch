@@ -1,0 +1,236 @@
+#!/usr/bin/env bash 
+#
+# Takes a branch name and builds it on all unix platforms.
+#
+# Usage: $0 <branch> [options]
+#
+# options:
+#	- testset: Also run the test set
+#  - test <testname>: run a specific test with the default options
+#  - category <categoryname>: run a specific test category
+#
+# options may be provided multiple times
+#
+
+HOSTS="hoodie badboy hale polaris"
+if [ -z "$RAMDISKS" ]; then
+	RAMDISKS="asbo hoodie"
+fi
+RAMDISKPATH=/dev/shm
+BUILDPATH=/var/tmp
+SVNROOT=svn://svn.apama.com/branches
+LOGROOT=/tmp/buildlogs
+
+usage()
+{
+	cat <<END
+Usage: $0 <branch> [options]
+
+ options:
+	- testset Also run the test set
+	- alltests Also run all the tests
+	- buildtest Also build apama-test (implied by any test request)
+	- test <testname> run a specific test with the default options
+	- category <categoryname> run a specific test category
+	- host <hostname> only run it on this host
+	- debugbuild Use a debug build
+	- noclean Don't clean the output tree when done
+
+ options may be provided multiple times
+END
+}
+
+if [ -f /etc/profile ]; then
+	. /etc/profile
+fi
+if [ -f $HOME/.makepath.sh ]; then
+	. $HOME/.makepath.sh
+fi
+
+width=
+case `hostname` in
+	asbo.apama.com)
+		width="-j6"
+		;;
+	badboy.apama.com)
+		width="-j4"
+		;;
+	vega)
+		width="-j4"
+		;;
+esac
+
+if [ -z "$BRANCH" ]; then
+	if [ -z "$1" ]; then
+		usage
+		exit 1
+	fi
+
+	BRANCH=$1
+	shift
+fi
+
+if ! svn ls $SVNROOT/$BRANCH > /dev/null; then
+	echo "$BRANCH is not a valid branch under $SVNROOT"
+	usage
+	exit 1
+fi
+
+while [ -n "$1" ]; 
+do
+	case "$1" in
+		alltests)
+			alltests=true
+			buildtest=true
+			;;
+		testset)
+			testset=true
+			buildtest=true
+			;;
+		buildtest)
+			buildtest=true
+			;;
+		noclean)
+			noclean=true
+			;;
+		debugbuild)
+			debugbuild=true
+			;;
+		test)
+			tests="$tests $2"
+			buildtest=true
+			shift
+			;;
+		category)
+			categories="$categories $2"
+			buildtest=true
+			shift
+			;;
+		host)
+			hosts="$hosts $2"
+			shift
+			;;
+		*)
+			usage
+			exit 1
+			;;
+	esac
+	shift
+done
+
+if [ -n "$buildmode" ]; then
+	# we are on a machine, checkout, build and run tests
+	echo "Building on `hostname` ($APAMA_MACHTYPE)"
+
+	if [ -n "$ramdisk" ]; then
+		buildpath=$RAMDISKPATH/$USER/checkbranch
+	else
+		buildpath=$BUILDPATH/$USER/checkbranch
+	fi
+
+	mkdir -p $buildpath
+	cd $buildpath
+	if [ -e "apama-src" ]; then
+		mv -f apama-src apama-src.old
+	fi
+	if [ -e "apama-test" ]; then
+		mv -f apama-test apama-test.old
+	fi
+	(rm -rf apama-src.old apama-test.old)&
+	
+	echo "Checking out $BRANCH in $buildpath"
+	if [ -n "$buildtest" ]; then
+		(svn co -q $SVNROOT/$BRANCH/apama-test)&
+	fi
+	ln -sf /shared/apamabld/apama-lib .
+	ln -sf /shared/apamabld/apama-lib2 .
+	svn co -q $SVNROOT/$BRANCH/apama-src
+	cd apama-src
+
+	echo "Building apama-src"
+	if [ -n "$debugbuild" ]; then
+		gmake $width DEBUG=true
+	else
+		gmake $width
+	fi
+
+	if [ -n "$buildtest" ]; then
+		wait
+
+		cd ../apama-test
+		echo "Building apama-test"
+		if [ -n "$debugbuild" ]; then
+			gmake $width DEBUG=true
+		else
+			gmake $width
+		fi
+
+		if [ -n "$testset" ]; then
+			cd python_scripts
+			./doReleaseTest.py -t #--parallel
+			cd ..
+		fi
+		if [ -n "$alltests" ]; then
+			cd python_scripts
+			./doReleaseTest.py #--parallel
+			cd ..
+		fi
+		if [ -n "$categories" ]; then
+			categoryfile=$buildpath/categories
+			echo $categories | xargs -n 1 > $categoryfile
+			cd python_scripts
+			./doReleaseTest.py -f $categoryfile #--parallel 
+			cd ..
+		fi
+		for i in $tests; do
+			fullpath="`find . -name "$i"`"
+			if [ -z "$fullpath" ]; then
+				echo "Could not find $i"
+			fi
+			dir="`dirname "$fullpath"`"
+			old=`pwd`
+			cd "$dir"
+			./runTest.py -u $i
+			cd $old
+		done
+	fi
+
+	cd /tmp
+	wait
+	if [ -z "$noclean" ]; then
+		echo "Removing $buildpath"
+		rm -rf $buildpath
+	fi
+	echo "All done"
+	exit 0
+else
+	# run this script on each machine
+	if [ -z "$hosts" ]; then
+		hosts=$HOSTS
+	fi
+
+	mkdir -p $LOGROOT
+
+	if [ -f "$0" ]; then
+		script=$0
+	else
+		script=`which $0`
+	fi
+	for h in $hosts; do
+		(
+		 logfile=$LOGROOT/${h}_`sed 's,[^.A-Za-z0-9],_,g' <<< $BRANCH`_`date +%Y-%m-%d`.log
+		 echo "Building on $h"
+		 unset ramdisk
+		 for i in $RAMDISKS; do
+			if [ "$i" == "$h" ]; then
+				ramdisk=true
+			fi
+		 done
+		 echo "noclean='$noclean';alltests='$alltests';debugbuild='$debugbuild';buildmode=true;tests='$tests';testset='$testset';categories='$categories';BRANCH='$BRANCH';buildtest='$buildtest';ramdisk='$ramdisk';set -e" | cat - $script | ssh -C $h /usr/bin/env bash &> $logfile
+		 rc=$?
+		 echo "$h done, log file is $logfile, return code was $rc"
+		) &
+	done
+	wait
+	echo All done
+fi
