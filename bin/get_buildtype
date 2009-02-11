@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# $Copyright(c) 2005-2008 Progress Software Corporation (PSC). All rights reserved.$
+#
+# Echo the value of APAMA_BUILDTYPE as reported by the get_platform.sh
+# script to stdout.
+#
+# $Id: get_buildtype 95013 2008-12-01 15:20:29Z majohnso $
+#
+
+. `dirname $0`/get_platform.sh
+
+echo $APAMA_BUILDTYPE

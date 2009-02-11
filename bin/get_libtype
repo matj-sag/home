@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Echo the value of APAMA_LIBTYPE as reported by the get_platform.sh
+# script to stdout.
+#
+# $Id: get_libtype 95013 2008-12-01 15:20:29Z majohnso $
+#
+
+. `dirname $0`/get_platform.sh
+
+echo $APAMA_LIBTYPE

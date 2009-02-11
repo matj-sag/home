@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+
+import getopt, os, string, sys, xml.dom.minidom
+
+translationTable = string.maketrans('','')
+invalidChars = ''
+for i in range(0x00, 0x08):
+	invalidChars = invalidChars + chr(i)
+for i in range(0x0B, 0x0C):
+	invalidChars = invalidChars + chr(i)
+for i in range(0x0E, 0x1F):
+	invalidChars = invalidChars + chr(i)
+	
+class LogReader:
+	def __init__(self, f):
+		self.f = f
+
+	def read(self, size):
+		buffer = self.f.read(size)
+		# Strip out all invalid XML characters
+		buffer = buffer.translate(translationTable, invalidChars)
+		return buffer
+
+def getRevisionRange(url):
+	f = os.popen("svn log --xml --stop-on-copy %s" % url)
+	document = xml.dom.minidom.parse(LogReader(f))
+	f.close()
+
+	logEntryNodes = document.getElementsByTagName("logentry")
+
+	latest = int(logEntryNodes[0].getAttribute("revision"))
+	first = int(logEntryNodes[len(logEntryNodes) - 1].getAttribute("revision"))
+
+	return (first, latest)
+
+def getRepositoryRoot(url):
+	f = os.popen("svn info %s" % url)
+	for line in f:
+		if line.find("Repository Root:") == 0:
+			line = line.replace("Repository Root:", "")
+			root = line.strip()
+	f.close()
+	return root
+
+def printUsage():
+	print "simpleMerge [option] URL [WC]"
+	print "Merge URL into working copy WC (defaults to .) and generate commit message"
+	print
+	print "  -d  --dummy    Don't actually do the merge, just report the merge command."
+	print "  -q  --quiet    Print as little as possible."
+	print
+	print "e.g. to merge magical feature onto the 4.2.1.0_rc integration branch:"
+	print
+	print "svn co http://svn.apama.com/dev/branches/int/4.2.1.0_rc"
+	print "simpleMerge http://svn.apama.com/dev/branches/dev/4.0.2.1_magical_feature 4.2.1.0_rc"
+	print "svn ci -F commit.msg 4.2.1.0_rc"
+	print
+	sys.exit(1)
+
+
+try:
+	opts, args = getopt.getopt(sys.argv[1:], "dq", ["dummy", "quiet"])
+except getopt.GetoptError:
+	printUsage()
+
+dummy = False
+quiet = False
+for o, a in opts:
+	if o in ('-d', '--dummy'):
+		dummy = True
+	if o in ('-q', '--quiet'):
+		quiet = True
+
+if len(args) < 1 or len(args) > 2:
+	printUsage()
+mergeFromURL = args[0]
+if len(args) == 2:
+	workingCopy = args[1]
+else:
+	workingCopy = "."
+first, last = getRevisionRange(mergeFromURL)
+
+if quiet:
+	mergeCmd = 'svn merge -q -r%d:%d %s %s' % (first, last, mergeFromURL, workingCopy)
+else:
+	mergeCmd = 'svn merge -r%d:%d %s %s' % (first, last, mergeFromURL, workingCopy)
+
+if not quiet:
+	print mergeCmd
+
+if not dummy:
+	os.system(mergeCmd)
+
+mergeFromPath = mergeFromURL.replace(getRepositoryRoot(mergeFromURL), "", 1)
+
+mergeMessage = "Merged r%d:%d from %s" % (first, last, mergeFromPath)
+
+f = open("commit.msg", "w")
+f.write(mergeMessage  + '\n')
+f.close()
+
+if not quiet:
+	if dummy:
+		print "Dummy merge:"
+	print mergeMessage
+	print 
+	if not dummy:
+		print "To commit use: svn commit -F commit.msg"
+

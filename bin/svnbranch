@@ -6,9 +6,50 @@ MASTER=int/4.0.0.0
 BRANCHCACHE="/tmp/.svnbranch-$USER-branchcache"
 
 usage() {
-	echo "Usage: svnbranch [--new <branch>|--delete <branch>|<branch>|--update]"
+	echo "Usage: svnbranch [--new <branch>|--delete <branch>|--merge <branch>|<branch>|--update|--rebase <branch> <branch>]"
 }
+merge() {
+	MERGE="$1"
+	REV="$2"
+	URL="`svn info | sed -n '/^URL/s,URL: \(.*\)'"$CURRENT"'\(.*\),\1'"$MERGE"'\2,p'`"
 
+	echo -n "Merging branch $MERGE onto $CURRENT (url = $URL)"
+	if [ -z "$REV" ]; then
+		simpleMerge -q "$URL"
+	else
+		simpleMerge -q "$URL@$REV"
+	fi
+	echo "."
+}
+rebase() {
+	REBASE="$1"
+	REBASESRC="$2"
+	URL="`svn info | sed -n '/^URL/s,URL: \(.*\)'"$CURRENT"'\(.*\),\1'"$REBASE"'\2,p'`"
+
+	if [ "${ROOT:0:4}" = "svn:" ]; then
+		WRITABLE="`sed 's/svn:/http:/;s,$,/dev,' <<< "$ROOT"`"
+	else
+		WRITABLE="$ROOT"
+	fi
+	
+	echo -n "Getting latest revision on $REBASE"
+	svn switch "$URL"
+	REV="`svn info | sed -n '/^Revision/s/.*: //p'`"
+	echo "."
+
+	echo -n "Deleting branch $REBASE"
+	svn rm "$WRITABLE/branches/$REBASE" -m"Rebasing $REBASE from $REBASESRC"
+	echo "."
+
+	echo -n "Rebranching $REBASE from $REBASESRC"
+	svn cp "$WRITABLE/branches/$REBASESRC" "$WRITABLE/branches/$REBASE" -m"Rebasing $REBASE from $REBASESRC"
+	svn switch "$URL"
+	echo "."
+
+	echo -n "Merging forward $REBASE changes to $REBASESRC"
+	simpleMerge -q "$URL@$REV"
+	echo "."
+}
 create() {
 	NEW="$1"
 	BASIS="$2"
@@ -35,9 +76,25 @@ create() {
 }
 delete() {
 	DEL="$1"
-	echo -n "Deleting branch $DEL"
-	echo -n " - I'm afraid I can't let you do that Dave"
-	echo "."
+	
+	if [ "${ROOT:0:4}" = "svn:" ]; then
+		WRITABLE="`sed 's/svn:/http:/;s,$,/dev,' <<< "$ROOT"`"
+	else
+		WRITABLE="$ROOT"
+	fi
+	
+	echo "Deleting branch $DEL"
+	echo "Will execute svn rm $WRITABLE/branches/$DEL"
+	echo -n "Are you sure? [y|N]: "
+	read r
+	
+	if [ "y" = "$r" ] || [ "Y" = "$r" ]; then
+		echo "Deleting"
+		svn rm -m"Deleting branch $DEL" "$WRITABLE/branches/$DEL"
+		echo "."
+	else
+		echo "Cancelled."
+	fi
 }
 switch() {
 	SW="$1"
@@ -46,13 +103,19 @@ switch() {
 	svn switch "$URL"
 }
 
+update() {
+	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' > "$BRANCHCACHE"
+	svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
+	BRANCHES="`cat "$BRANCHCACHE"`"
+}
+
 if ! [ -d .svn ]; then
 	echo "Not in an svn repository"
 	exit 1
 fi
 
 ROOT="`svn info | sed -n '/^Repository Root:/s/[^:]*: //p'`"
-CURRENT="`svn info | sed -n "/^URL/s,URL: $ROOT/branches/\([^/]*/[^/]*\)/.*,\1,p"`"
+CURRENT="`svn info | sed -n "/^URL/s,URL: $ROOT/branches/\([^/]*/[^/]*\)/\{0\,1\}.*,\1,p"`"
 if ! [ -f "$BRANCHCACHE" ]; then
 	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' > "$BRANCHCACHE"
 	svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
@@ -72,10 +135,63 @@ case $1 in
 		done
 	;;
 	"--update"|"-u")
-		svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' > "$BRANCHCACHE"
-		svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
+		update
+	;;
+	"-m"|"-M"|"--merge")
+		update
+		if [ -z "$2" ]; then
+			usage
+			exit 1
+		fi
+		MERGE="`sed 's,/*$,,' <<< $2`"
+		MERGEBRANCH="`sed 's,@.*$,,' <<< $MERGE`"
+		REV="`sed 's,^.*@,,' <<< $MERGE`"
+		if [ "$CURRENT" == "$MERGE" ]; then
+			echo "Already on branch $2"
+			exit 1
+		fi
+		exists=""
+		for i in $BRANCHES; do
+			if [ "$i" == "$MERGEBRANCH" ]; then
+				exists="1"
+			fi
+		done
+		if [ -z "$exists" ]; then
+			echo "Branch $MERGE does not exist, cannot merge it"
+			exit 1
+		fi
+		
+		merge "$MERGEBRANCH" "$REV"
+		update
+	;;
+	"--rebase")
+		update
+		if [ -z "$3" ]; then
+			usage
+			exit 1
+		fi
+		REBASE="`sed 's,/*$,,' <<< $2`"
+		REBASESRC="`sed 's,/*$,,' <<< $3`"
+		REBASESRCBRANCH="`sed 's,@.*$,,' <<< $REBASESRC`"
+		exists=""
+		for i in $BRANCHES; do
+			if [ "$i" == "$REBASE" ]; then
+				exists="${exists}1"
+			fi
+			if [ "$i" == "$REBASESRCBRANCH" ]; then
+				exists="${exists}1"
+			fi
+		done
+		if [ "$exists" != "11" ]; then
+			echo "Branches $REBASE and/or $REBASESRC do not exist, cannot rebase"
+			exit 1
+		fi
+		
+		rebase "$REBASE" "$REBASESRC"
+		update
 	;;
 	"-c"|"-C"|"--create"|"-n"|"-N"|"--new")
+		update
 		if [ -z "$2" ]; then
 			usage
 			exit 1
@@ -113,6 +229,7 @@ case $1 in
 	   # and switch to it
 		create "$NEW" "$BASIS"
 		switch "$NEW"
+		update
 		echo "."
 	;;
 	"-d"|"-D"|"--delete"|"-r"|"-R"|"--remove")
@@ -129,6 +246,7 @@ case $1 in
 				if [ "$CURRENT" == "$DEL" ]; then
 					switch "$MASTER"
 				fi
+				update
 				exit 0
 			fi
 		done
@@ -140,6 +258,7 @@ case $1 in
 		exit 0
 	;;
 	*)
+		update
 		SW="`sed 's,/*$,,' <<< $1`"
 		if [ "$CURRENT" == "$SW" ]; then
 			echo "Already on branch $SW"

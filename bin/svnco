@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+BRANCH="$1"
+
+set -e
+
+if [ -z "$BRANCH" ]; then
+	echo "Usage: svnco <branch>"
+	exit 1
+fi
+
+svn -q co -N svn://svn.apama.com/branches/$BRANCH
+cd `basename $BRANCH`
+
+if [ -e apama-lib2 ]; then
+	true
+else
+		ln -sf /shared/apamabld/apama-lib .
+		ln -sf /shared/apamabld/apama-lib2 .
+fi
+
+svn -q up apama-src 
+echo "apama-src checked out"
+svn -q up -N apama-test  
+cd apama-test 
+svn -q up -N system etc doc examples unit
+svn -q up licences python_scripts tools utils
+cd unit
+svn -q up -N correlator-core  correlator-hypertree correlator-jmon cxxtest dsm junit lib samples studio
+svn -q up cpp-common dotNet-common iaf java-common osee remote-executables sender-merger tools
+echo "apama-test partially checked out"
+cd ../..
+svn switch --relocate svn://svn.apama.com/branches/$BRANCH http://svn.apama.com/dev/branches/$BRANCH
+echo "All done and switch to R/W repository"
