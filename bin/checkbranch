@@ -249,11 +249,12 @@ else
 		 if [ -n "$testset" ]; then
 			 ssh $h 'd:\mjj29\testset.bat'" `whoami` $BRANCH" 2>&1 | cat >> $logfile
 		 fi
+		 dos2unix $logfile
 		 rc=0
-		 for i in `sed -n '/completed/s/.*return code "\([0-9]*\)"/\1/p' /tmp/buildlogs/gulliver_int_4.1.0.0_2009-02-11.log`; do
+		 for i in `sed -n '/completed/s/.*return code "\([0-9]*\)"/\1/p' $logfile`; do
 			rc=$(( $rc + $i ))
 		 done
-		 errs=`grep -c fatal.error /tmp/buildlogs/gulliver_int_4.1.0.0_2009-02-11.log`
+		 errs=`grep -c fatal.error $logfile`
 		 echo "$h done, log file is $logfile, return code was $rc, apama-test build errors: $errs"
 		) &
 	done
