@@ -5,6 +5,6 @@ d:
 cd \
 cd %USER%
 cd checkbranch
-svn up apama-test
+svn -q up apama-test
 cd apama-test
 ms_build_all_tools.bat

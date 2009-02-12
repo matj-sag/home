@@ -13,6 +13,7 @@
 #
 
 HOSTS="hoodie badboy hale polaris"
+WINHOSTS="gulliver"
 if [ -z "$RAMDISKS" ]; then
 	RAMDISKS="asbo hoodie"
 fi
@@ -33,6 +34,7 @@ Usage: $0 <branch> [options]
 	- test <testname> run a specific test with the default options
 	- category <categoryname> run a specific test category
 	- host <hostname> only run it on this host
+	- winhost <hostname> only run it on this (windows) host
 	- debugbuild Use a debug build
 	- noclean Don't clean the output tree when done
 
@@ -108,6 +110,10 @@ do
 			;;
 		host)
 			hosts="$hosts $2"
+			shift
+			;;
+		winhost)
+			winhosts="$winhosts $2"
 			shift
 			;;
 		*)
@@ -205,8 +211,9 @@ if [ -n "$buildmode" ]; then
 	exit 0
 else
 	# run this script on each machine
-	if [ -z "$hosts" ]; then
+	if [ -z "$hosts" ] && [ -z "$winhosts" ]; then
 		hosts=$HOSTS
+		winhosts=$WINHOSTS
 	fi
 
 	mkdir -p $LOGROOT
@@ -229,6 +236,25 @@ else
 		 echo "noclean='$noclean';alltests='$alltests';debugbuild='$debugbuild';buildmode=true;tests='$tests';testset='$testset';categories='$categories';BRANCH='$BRANCH';buildtest='$buildtest';ramdisk='$ramdisk';set -e" | cat - $script | ssh -C $h /usr/bin/env bash &> $logfile
 		 rc=$?
 		 echo "$h done, log file is $logfile, return code was $rc"
+		) &
+	done
+	for h in $winhosts; do
+		(
+		 logfile=$LOGROOT/${h}_`sed 's,[^.A-Za-z0-9],_,g' <<< $BRANCH`_`date +%Y-%m-%d`.log
+		 echo "Building on $h (windows)"
+		 ssh $h 'd:\mjj29\buildcheck.bat'" `whoami` $BRANCH" 2>&1 | cat > $logfile
+		 if [ -n "$buildtest" ]; then
+			 ssh $h 'd:\mjj29\buildtest.bat'" `whoami` $BRANCH" 2>&1 | cat >> $logfile
+		 fi
+		 if [ -n "$testset" ]; then
+			 ssh $h 'd:\mjj29\testset.bat'" `whoami` $BRANCH" 2>&1 | cat >> $logfile
+		 fi
+		 rc=0
+		 for i in `sed -n '/completed/s/.*return code "\([0-9]*\)"/\1/p' /tmp/buildlogs/gulliver_int_4.1.0.0_2009-02-11.log`; do
+			rc=$(( $rc + $i ))
+		 done
+		 errs=`grep -c fatal.error /tmp/buildlogs/gulliver_int_4.1.0.0_2009-02-11.log`
+		 echo "$h done, log file is $logfile, return code was $rc, apama-test build errors: $errs"
 		) &
 	done
 	wait
