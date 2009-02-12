@@ -5,7 +5,9 @@ d:
 cd \
 cd %USER%
 cd checkbranch
+if exist apama-test icacls apama-test /grant "Everyone:F" /t /q
 if exist apama-test del /s /q apama-test
+if exist apama-samples icacls apama-samples /grant "Everyone:F" /t /q
 if exist apama-samples del /s /q apama-samples
 svn -q up apama-test
 svn -q up apama-samples
