@@ -5,10 +5,14 @@ d:
 cd \
 mkdir %USER%
 cd %USER%
-svn co -N http://svn.apama.com/dev/branches/%BRANCH% checkbranch
+mkdir checkbranch
 cd checkbranch
+if not exist apama-lib2 mklink /J apama-lib2 d:\apama-libs\apama-lib2
+if exist .svn del /s /q .svn
+if exist apama-src del /s /q apama-src
+svn co -N http://svn.apama.com/dev/branches/%BRANCH% .
 svn info
-mklink /J apama-lib2 d:\apama-libs\apama-lib2
+
 svn -q up apama-src
 cd apama-src
 ms_build.bat all
