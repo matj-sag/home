@@ -146,6 +146,9 @@ case $1 in
 		MERGE="`sed 's,/*$,,' <<< $2`"
 		MERGEBRANCH="`sed 's,@.*$,,' <<< $MERGE`"
 		REV="`sed 's,^.*@,,' <<< $MERGE`"
+		if [ "$REV" == "$MERGEBRANCH" ]; then 
+			REV= 
+		fi
 		if [ "$CURRENT" == "$MERGE" ]; then
 			echo "Already on branch $2"
 			exit 1
