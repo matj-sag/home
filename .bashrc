@@ -160,7 +160,7 @@ if [ "$PS1" ]; then
        . $HOME/.keychain/illythia-sh
        . $HOME/.keychain/illythia-sh-gpg
     elif test -f $HOME/.ssh/id_rsa;
-    then if test -x /usr/bin/keychain
+    then if test -x "`which keychain`"
     then
        keychain --quiet $HOME/.ssh/id_rsa  $HOME/.ssh/identity
        . $HOME/.keychain/`uname -n`-sh
