@@ -53,7 +53,7 @@ Linux-*-x86_64)
 	tools=/tools/linuxx86_64
 	java_arch=amd64
 	JAVA_HOME=$tools/java64/$java_version
-	PATH=$PATH:$tools/bin
+	PATH=$PATH:$tools/bin:$HOME/git/bin
 	;;
 Linux-*-i686)
 	tools=/tools/linuxx86
