@@ -133,7 +133,6 @@ if [ -z "$git" ]; then if ! svn ls $SVNROOT/$BRANCH > /dev/null; then
 fi; fi
 
 if [ -n "$buildmode" ]; then
-	set -x
 	# we are on a machine, checkout, build and run tests
 	echo "Building on `hostname` ($APAMA_MACHTYPE)"
 
