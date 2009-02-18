@@ -37,6 +37,7 @@ Usage: $0 <branch> [options]
 	- winhost <hostname> only run it on this (windows) host
 	- debugbuild Use a debug build
 	- noclean Don't clean the output tree when done
+	- git Clone <branch> as a git url instead of checking out from svn
 
  options may be provided multiple times
 END
@@ -72,10 +73,8 @@ if [ -z "$BRANCH" ]; then
 	shift
 fi
 
-if ! svn ls $SVNROOT/$BRANCH > /dev/null; then
-	echo "$BRANCH is not a valid branch under $SVNROOT"
-	usage
-	exit 1
+if [ "${BRANCH:0:3}" == "git" ]; then
+	git=true
 fi
 
 while [ -n "$1" ]; 
@@ -94,6 +93,9 @@ do
 			;;
 		noclean)
 			noclean=true
+			;;
+		git)
+			git=true
 			;;
 		debugbuild)
 			debugbuild=true
@@ -124,7 +126,14 @@ do
 	shift
 done
 
+if [ -z "$git" ]; then if ! svn ls $SVNROOT/$BRANCH > /dev/null; then
+	echo "$BRANCH is not a valid branch under $SVNROOT"
+	usage
+	exit 1
+fi; fi
+
 if [ -n "$buildmode" ]; then
+	set -x
 	# we are on a machine, checkout, build and run tests
 	echo "Building on `hostname` ($APAMA_MACHTYPE)"
 
@@ -142,15 +151,24 @@ if [ -n "$buildmode" ]; then
 	if [ -e "apama-test" ]; then
 		mv -f apama-test apama-test.old
 	fi
-	(rm -rf apama-src.old apama-test.old)&
+	if [ -e "git-branch" ]; then
+		mv -f git-branch git-branch.old
+	fi
+	(rm -rf apama-src.old apama-test.old git-branch.old)&
 	
 	echo "Checking out $BRANCH in $buildpath"
-	if [ -n "$buildtest" ]; then
-		(svn co -q $SVNROOT/$BRANCH/apama-test)&
-	fi
 	ln -sf /shared/apamabld/apama-lib .
 	ln -sf /shared/apamabld/apama-lib2 .
-	svn co -q $SVNROOT/$BRANCH/apama-src
+	if [ -n "$git" ]; then
+		git clone -q $BRANCH git-branch
+		mv -f "`pwd`/git-branch/apama-src" .
+		mv -f "`pwd`/git-branch/apama-test" .
+	else
+		if [ -n "$buildtest" ]; then
+			(svn co -q $SVNROOT/$BRANCH/apama-test)&
+		fi
+		svn co -q $SVNROOT/$BRANCH/apama-src
+	fi
 	cd apama-src
 
 	echo "Building apama-src"
@@ -233,12 +251,12 @@ else
 				ramdisk=true
 			fi
 		 done
-		 echo "noclean='$noclean';alltests='$alltests';debugbuild='$debugbuild';buildmode=true;tests='$tests';testset='$testset';categories='$categories';BRANCH='$BRANCH';buildtest='$buildtest';ramdisk='$ramdisk';set -e" | cat - $script | ssh -C $h /usr/bin/env bash &> $logfile
+		 echo "git='$git';noclean='$noclean';alltests='$alltests';debugbuild='$debugbuild';buildmode=true;tests='$tests';testset='$testset';categories='$categories';BRANCH='$BRANCH';buildtest='$buildtest';ramdisk='$ramdisk';set -e" | cat - $script | ssh -CA $h /usr/bin/env bash &> $logfile
 		 rc=$?
 		 echo "$h done, log file is $logfile, return code was $rc"
 		) &
 	done
-	for h in $winhosts; do
+	if [ -z "$git" ]; then for h in $winhosts; do
 		(
 		 logfile=$LOGROOT/${h}_`sed 's,[^.A-Za-z0-9],_,g' <<< $BRANCH`_`date +%Y-%m-%d`.log
 		 echo "Building on $h (windows)"
@@ -257,7 +275,7 @@ else
 		 errs=`grep -c fatal.error $logfile`
 		 echo "$h done, log file is $logfile, return code was $rc, apama-test build errors: $errs"
 		) &
-	done
+	done; fi
 	wait
 	echo All done
 fi
