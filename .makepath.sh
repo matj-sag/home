@@ -53,26 +53,26 @@ Linux-*-x86_64)
 	tools=/tools/linuxx86_64
 	java_arch=amd64
 	JAVA_HOME=$tools/java64/$java_version
-	PATH=$PATH:$tools/bin:$HOME/git/bin
+	PATH=$PATH:$tools/bin:$HOME/git/linuxx86_64/bin
 	;;
 Linux-*-i686)
 	tools=/tools/linuxx86
 	java_arch=i386
-	PATH=$PATH:$tools/bin
+	PATH=$PATH:$tools/bin:$HOME/git/linuxx86/bin
 	;;
 SunOS-*-i86*)
 	tools=/tools/solarisx86_64
 	java_arch=amd64
 	PATH=/usr/dt/bin:$PATH
 	PATH=$PATH:$tools/gmake-3.79.1/bin
-	PATH=$PATH:$tools/bin
+	PATH=$PATH:$tools/bin:$HOME/git/solarisx86_64/bin
 	;;
 SunOS-*-sun*)
 	tools=/tools/solaris
 	java_arch=sparc
 	PATH=/usr/dt/bin:$PATH
 	PATH=$PATH:$tools/gmake-3.79.1/bin
-	PATH=$PATH:$tools/bin
+	PATH=$PATH:$tools/bina:$HOME/git/solaris/bin
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH${LD_LIBRARY_PATH:+:}/usr/local/lib
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/ssl/lib
 	if [ "$TERM" = "xterm-color" ]; then
