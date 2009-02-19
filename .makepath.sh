@@ -115,6 +115,12 @@ Linux-*-x86_64 | Linux-*-i686 | SunOS-* | FreeBSD-[567]*)
 	;;
 esac
 
+# load git completion and PS1 stuff
+if [ -f $HOME/git/completion.bash ]; then
+	. $HOME/git/completion.bash
+fi
+	
+
 PATH=$HOME/bin:$PATH
 BASH_PROFILE="`date`"
 
