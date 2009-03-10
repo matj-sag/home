@@ -35,7 +35,7 @@ parse_svn_repository_root() {
 parse_svn() {
    local LD_LIBRARY_PATH= 
 	unset IFS
-	sed 's/ /@/' <<< `svn info 2>/dev/null | egrep '^(URL|Revision)' | sed -ne '/^Revision/s/.*: //p;/^URL/s#^URL: '"$(parse_svn_repository_root)"'*[^/]*/\([^/]*\)/\([^/]*\)/.*#\1/\2#p'` 
+	sed 's/ /@/' <<< `svn info 2>/dev/null | egrep '^(URL|Revision)' | sed -ne '/^Revision/s/.*: //p;/^URL/s#^URL: '"$(parse_svn_repository_root)"'*[^/]*/\([^/]*\)/\([^/]*\).*$#\1/\2#p'` 
 }
 
 function title {

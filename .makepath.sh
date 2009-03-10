@@ -31,7 +31,7 @@ runtime_java=$apama_lib/all
 
 # Build paths for 3rd-party libraries needed to build/run Apama
 tao_version=1.5.3-apama3
-icu_version=3.4.1
+icu_version=3.8.1
 libxml2_version=2.6.23
 psepro_version=6.3.0
 tao_ld_library_path=$runtime/tao/$tao_version/lib
@@ -72,7 +72,7 @@ SunOS-*-sun*)
 	java_arch=sparc
 	PATH=/usr/dt/bin:$PATH
 	PATH=$PATH:$tools/gmake-3.79.1/bin
-	PATH=$PATH:$tools/bina:$HOME/git/solaris/bin
+	PATH=$PATH:$tools/bin:$HOME/git/solaris/bin
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH${LD_LIBRARY_PATH:+:}/usr/local/lib
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/ssl/lib
 	if [ "$TERM" = "xterm-color" ]; then
