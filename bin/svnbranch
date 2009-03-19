@@ -106,6 +106,7 @@ switch() {
 update() {
 	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' > "$BRANCHCACHE"
 	svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
+	svn ls "$ROOT/branches/releases" | sed 's,^,releases/,;s/.$//' >> "$BRANCHCACHE"
 	BRANCHES="`cat "$BRANCHCACHE"`"
 }
 
