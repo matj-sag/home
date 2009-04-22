@@ -230,9 +230,9 @@ case $1 in
 		fi
 		
 	   # create a branch
-	   # and switch to it
+	   # and _don't_ switch to it
 		create "$NEW" "$BASIS"
-		switch "$NEW"
+		#switch "$NEW"
 		update
 		echo "."
 	;;

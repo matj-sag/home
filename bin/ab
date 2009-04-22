@@ -64,6 +64,7 @@ function cleanup()
 #
 function _mlock()
 {
+	return
 	lockfile="$HOME/.lock-$1"
 	mlockfile="$HOME/.mlock-$1"
 
@@ -86,6 +87,7 @@ function _mlock()
 #
 function _lock()
 {
+	return
 	lockfile="$HOME/.lock-$1"
 	mlockfile="$HOME/.mlock-$1"
 
@@ -106,6 +108,7 @@ function _lock()
 # release lock()
 function _unlock()
 {
+	return
 	lockfile="$HOME/.lock-$1"
 	
 	if ! echo $LOCKSHELD | grep $1 >/dev/null; then return; fi
@@ -122,6 +125,7 @@ function _unlock()
 # release mlock() 
 function _munlock()
 {
+	return
 	munlockfile="$HOME/.mlock-$1"
 	
 	if ! echo $LOCKSHELD | grep $1 >/dev/null; then return; fi

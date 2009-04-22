@@ -42,7 +42,7 @@ if [ -z "$FULL" ]; then
 	svn -q up cpp-common dotNet-common iaf java-common osee remote-executables sender-merger tools
 	echo "apama-test partially checked out"
 	cd ..
+	cd ..
 fi
-cd ..
 svn switch --relocate svn://svn.apama.com/branches/$BRANCH http://svn.apama.com/dev/branches/$BRANCH
 echo "All done and switch to R/W repository"
