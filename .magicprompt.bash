@@ -26,6 +26,7 @@ fi
 
 unset task
 uname=`uname`
+USER=`whoami`
 
 parse_svn_repository_root() {
    local LD_LIBRARY_PATH= 
@@ -82,7 +83,7 @@ function prompt_command {
 	hostnam=`cut -d . -f 1 <<< $HOSTNAME`
 	if [ -z "$hostnam" ]; then hostnam=$HOSTNAME; fi
 	#   "whoami" and "pwd" include a trailing newline
-	usernam=$USER
+	usernam=${USER}
 	let usersize=${#usernam}
 	newPWD="${PWD}"
 	let pwdsize=${#newPWD}
@@ -109,16 +110,22 @@ function prompt_command {
 		prompttask="`basename $PWD`"
 	fi
 
+	if [ "root" == "$usernam" ]; then
+		usercolor=$RED
+	else
+		usercolor=$WHITE
+	fi
+
 }
 
 function ps1 {
 PS1="$YELLOW-$LIGHT_BLUE-(\
-$WHITE\${usernam}${hostcolour}@\${hostnam}${GRAY}:${uname}\
+${usercolor}\${usernam}${hostcolour}@\${hostnam}${GRAY}:${uname}\
 ${LIGHT_BLUE})-${GRAY}-\${fill}${LIGHT_BLUE}-(\
 $NO_COLOUR\${newPWD}\
 $LIGHT_BLUE)-$YELLOW-\
 \n\
- =${rccolor}${rc}$LIGHT_BLUE [$NO_COLOUR${prompttask}$LIGHT_BLUE]$GRAY ${vcsprompt}$LIGHT_BLUE\$\
+ =${rccolor}${rc}$LIGHT_BLUE [$NO_COLOUR${prompttask}$LIGHT_BLUE]$GRAY ${vcsprompt}$LIGHT_BLUE"'\$'"\
 $NO_COLOUR "
 }
 PROMPT_COMMAND='export rcinput=$?:$_;rc;title;prompt_command;vcs;ps1'

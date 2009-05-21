@@ -262,7 +262,7 @@ function ab_test()
 		mv "$TESTRESULTS/$TEST-$APAMA_MACHTYPE-strace.log" "$TESTRESULTS/$TEST/$APAMA_MACHTYPE/strace.log"
 		echo "Strace output in $TESTRESULTS/$TEST/$APAMA_MACHTYPE/strace.log"
 	else
-		./runTest.py -o outputlink-$APAMA_MACHTYPE "$@" $TEST
+		nice -2 ./runTest.py -o outputlink-$APAMA_MACHTYPE "$@" $TEST
 	fi
 	_unlock test-$APAMA_MACHTYPE-$TEST
 	_munlock build-test-$APAMA_MACHTYPE
