@@ -26,7 +26,9 @@ fi
 
 unset task
 uname=`uname -sm`
-USER=`whoami`
+if [ -x /usr/bin/whoami ]; then
+	USER=`whoami`
+fi
 
 function t()
 {
@@ -47,10 +49,10 @@ parse_svn() {
 function title {
 	if [ "$TERM" == "screen" ]; then
 		# screen
-		echo -en "\033k[$task] ${hostnam} ($rc): $last\033\\"
+		echo -en "\033k[$prompttask] ${hostnam} ($rc): $last\033\\"
 	else
 		# xterm
-		echo -en "\033]2;[$DATE] ${hostnam} ($rc): $last\007"
+		echo -en "\033]2;[$prompttask] ${hostnam} ($rc): $last\007"
 	fi
 }
 
