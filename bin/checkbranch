@@ -12,10 +12,10 @@
 # options may be provided multiple times
 #
 
-HOSTS="hoodie badboy hale polaris"
+HOSTS="conman badboy hale polaris"
 WINHOSTS="gulliver"
 if [ -z "$RAMDISKS" ]; then
-	RAMDISKS="asbo hoodie"
+	RAMDISKS="asbo hoodie conman"
 fi
 RAMDISKPATH=/dev/shm
 BUILDPATH=/var/tmp
@@ -52,6 +52,12 @@ fi
 
 width=
 case `hostname` in
+	hoodie.apama.com)
+		width="-j6"
+		;;
+	conman.apama.com)
+		width="-j12"
+		;;
 	asbo.apama.com)
 		width="-j6"
 		;;
@@ -61,6 +67,18 @@ case `hostname` in
 	vega)
 		width="-j4"
 		;;
+	polaris)
+		width="-j4"
+		;;
+	hale)
+		APAMA_MACHTYPE=sparc64-sun-solaris10-studio12
+		export APAMA_MACHTYPE
+		;;
+	bopp)
+		APAMA_MACHTYPE=sparc64-sun-solaris10-studio12
+		export APAMA_MACHTYPE
+		;;
+
 esac
 
 if [ -z "$BRANCH" ]; then
@@ -172,9 +190,9 @@ if [ -n "$buildmode" ]; then
 
 	echo "Building apama-src"
 	if [ -n "$debugbuild" ]; then
-		gmake $width DEBUG=true
+		gmake $width DEBUG=true VERBOSECOMMANDS=true
 	else
-		gmake $width
+		gmake $width VERBOSECOMMANDS=true
 	fi
 
 	if [ -n "$buildtest" ]; then
