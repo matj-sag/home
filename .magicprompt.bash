@@ -25,8 +25,13 @@ if [ -z "$hostcolour" ]; then
 fi
 
 unset task
-uname=`uname`
+uname=`uname -sm`
 USER=`whoami`
+
+function t()
+{
+	export task=$1
+}
 
 parse_svn_repository_root() {
    local LD_LIBRARY_PATH= 
