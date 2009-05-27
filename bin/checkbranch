@@ -12,15 +12,19 @@
 # options may be provided multiple times
 #
 
-HOSTS="conman badboy hale polaris"
-WINHOSTS="gulliver"
+if [ "$USER" = "mjj29" ]; then
+	WINHOSTS="gulliver"
+	HOSTS="conman badboy hale polaris"
+else
+	HOSTS="hoodie badboy bopp vega"
+fi
 if [ -z "$RAMDISKS" ]; then
 	RAMDISKS="asbo hoodie conman"
 fi
 RAMDISKPATH=/dev/shm
 BUILDPATH=/var/tmp
 SVNROOT=svn://svn.apama.com/branches
-LOGROOT=/tmp/buildlogs
+LOGROOT=/tmp/buildlogs/$USER
 
 usage()
 {
@@ -34,10 +38,8 @@ Usage: $0 <branch> [options]
 	- test <testname> run a specific test with the default options
 	- category <categoryname> run a specific test category
 	- host <hostname> only run it on this host
-	- winhost <hostname> only run it on this (windows) host
 	- debugbuild Use a debug build
 	- noclean Don't clean the output tree when done
-	- git Clone <branch> as a git url instead of checking out from svn
 
  options may be provided multiple times
 END

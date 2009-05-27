@@ -6,7 +6,7 @@ MASTER=int/4.0.0.0
 BRANCHCACHE="/tmp/.svnbranch-$USER-branchcache"
 
 usage() {
-	echo "Usage: svnbranch [--new <branch>|--delete <branch>|--merge <branch>|<branch>|--update|--rebase <branch> <branch>]"
+	echo "Usage: svnbranch [--new <branch>|--delete <branch>|--merge <branch>|<branch>|--update|--rebase <my branch> <their branch>]"
 }
 merge() {
 	MERGE="$1"
@@ -177,6 +177,10 @@ case $1 in
 		REBASE="`sed 's,/*$,,' <<< $2`"
 		REBASESRC="`sed 's,/*$,,' <<< $3`"
 		REBASESRCBRANCH="`sed 's,@.*$,,' <<< $REBASESRC`"
+		if grep "^int" &>/dev/null <<< "$REBASE" ; then
+			echo "Looks like you are trying to rebase an integration branch. You probably don't want to do this!"
+			exit 1
+		fi
 		exists=""
 		for i in $BRANCHES; do
 			if [ "$i" == "$REBASE" ]; then
