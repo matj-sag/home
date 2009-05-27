@@ -1,0 +1,114 @@
+#!/bin/sh --
+
+set -e
+
+# defaults
+append=false
+SVNROOT=http://svn.apama.com/dev/users/cr/svn-tools/known-failures
+release=4.2.0.0
+file=all
+
+usage() {
+	echo "Usage: triage <test> [options] <result>"
+	echo "Test should be the full path under apama-test (eg system/correlator/corba/testcases/correctness/Corr_Corba_cor_803"
+	echo "Options:"
+	echo "	-a --append - Adds the result to the test triage instead of replacing (default)"
+	echo "	-s --set - Replaces the test triage results with those given"
+	echo "	-r --revision <revision> - only set the triage for a single revision"
+	echo "	-R --svnroot <SVN path> - Path under which the test triage results live (default is users/cr/...)"
+	echo "	-i --intbranch <branch> - Release for which to triage (default: $release)"
+}
+
+if [ -z "$1" ]; then
+	usage
+	exit 1
+fi
+
+TEST="$1"
+shift
+
+while [ -n $1 ]; do
+	case "$1" in
+		-a|--append)
+			append=true
+		;;
+		-s|--set)
+			append=false
+		;;
+		-R|--svnroot)
+			if [ -z "$2" ]; then 
+				echo "No svn path specified"
+				usage
+				exit 1
+			fi
+			SVNROOT="$2"
+			shift
+		;;
+		-i|--intbranch)
+			if [ -z "$2" ]; then 
+				echo "No branch specified"
+				usage
+				exit 1
+			fi
+			release="$2"
+			shift
+		;;
+		-r|--revision)
+			if [ -z "$2" ]; then 
+				echo "No revision specified"
+				usage
+				exit 1
+			fi
+			file="r$2"
+			shift
+		;;
+		-*)
+			echo "Unknown option $1"
+			usage
+			exit 1
+		;;
+		*)
+			RESULT="$*"
+			break
+		;;
+	esac
+	shift
+done
+
+SVNPATH=$SVNROOT/$release/apama-test/$TEST
+
+if ! svn ls "$SVNROOT/$release/apama-test" >/dev/null 2>&1; then
+	echo "Base for triage results does not exist ($SVNROOT/$release/apama-test)"
+	usage
+	exit 1
+fi
+
+TEMP=`mktemp -d`
+
+cd $TEMP
+
+if ! svn ls "$SVNPATH" >/dev/null 2>&1; then
+	echo "Creating directory in SVN for triage result"
+	svn mkdir -m"Adding directory for test triage results" "$SVNPATH"
+fi
+
+svn co "$SVNPATH"
+cd "`basename "$SVNPATH"`"
+
+if [ "$append" = "true" ]; then
+	echo "$RESULT" >> "$file"
+else
+	echo "$RESULT" > "$file"
+fi
+
+svn add "$file" >/dev/null 1>&2
+
+echo "New triage result: "
+cat "$file"
+echo
+echo "Committing to SVN"
+
+svn commit -m"Added new test triage result" "$file"
+
+cd /tmp
+rm -rf "$TEMP"
