@@ -72,7 +72,7 @@ fi
 
 echo " using test $TEST as a verifier"
 
-LOGPATH=$WCPATH/bisect/$USER
+LOGPATH=$WCPATH/bisect
 mkdir -p $LOGPATH
 echo "Logs will be written to $LOGPATH"
 
