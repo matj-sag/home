@@ -231,7 +231,7 @@ if [ -n "$buildmode" ]; then
 			./doReleaseTest.py --parallel
 			cd ..
 		fi
-		if [ -n "$correcness" ]; then
+		if [ -n "$correctness" ]; then
 			cd python_scripts
 			./doReleaseTest.py --allprods --correctness --parallel
 			cd ..
