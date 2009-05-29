@@ -108,10 +108,12 @@ do
 		alltests)
 			alltests=true
 			buildtest=true
+			RAMDISKS=none
 			;;
 		correctness)
 			correctness=true
 			buildtest=true
+			RAMDISKS=none
 			;;
 		testset)
 			testset=true
@@ -137,6 +139,7 @@ do
 		category)
 			categories="$categories $2"
 			buildtest=true
+			RAMDISKS=none
 			shift
 			;;
 		host)

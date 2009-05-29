@@ -52,6 +52,37 @@ if ! [ -d "$TESTPATH" ]; then
 fi
 TESTPATH="`dirname "$TESTPATH"`"
 
+width=
+case `hostname` in
+	hoodie.apama.com)
+		width="-j6"
+		;;
+	conman.apama.com)
+		width="-j12"
+		;;
+	asbo.apama.com)
+		width="-j6"
+		;;
+	badboy.apama.com)
+		width="-j4"
+		;;
+	vega)
+		width="-j4"
+		;;
+	polaris)
+		width="-j4"
+		;;
+	hale)
+		APAMA_MACHTYPE=sparc64-sun-solaris10-studio12
+		export APAMA_MACHTYPE
+		;;
+	bopp)
+		APAMA_MACHTYPE=sparc64-sun-solaris10-studio12
+		export APAMA_MACHTYPE
+		;;
+
+esac
+
 echo -n "Bisecting $WCPATH over range "
 
 if (( $badrev > $goodrev )); then
@@ -91,12 +122,12 @@ while (( $top > $bottom )); do
 	echo -n "Trying r$trial ... "
 
 	svn up -r$trial apama-src &> $LOGPATH/$trial-up.log
-	gmake -j16 -C apama-src > $LOGPATH/$trial-build.log 2>&1 || (
-		gmake -j16 -C apama-src clean &> $LOGPATH/$trial-build.log
-		gmake -j16 -C apama-src >> $LOGPATH/$trial-build.log 2>&1
+	nice -1 gmake $width -C apama-src > $LOGPATH/$trial-build.log 2>&1 || (
+		nice -1 gmake $width -C apama-src clean &> $LOGPATH/$trial-build.log
+		nice -1 gmake $width -C apama-src >> $LOGPATH/$trial-build.log 2>&1
 	)
 	pushd "$TESTPATH" &>/dev/null
-	./runTest.py $TESTOPTIONS $TEST &> $LOGPATH/$trial-run.log
+	nice -1 ./runTest.py $TESTOPTIONS $TEST &> $LOGPATH/$trial-run.log
 	popd &>/dev/null
 	sed -n '/Outcome/s/.*: *//p' $LOGPATH/$trial-run.log
 	if grep PASSED $LOGPATH/$trial-run.log &>/dev/null; then
