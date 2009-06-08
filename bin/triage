@@ -27,7 +27,7 @@ fi
 TEST="$1"
 shift
 
-while [ -n $1 ]; do
+while [ -n "$1" ]; do
 	case "$1" in
 		-a|--append)
 			append=true
@@ -89,7 +89,7 @@ cd $TEMP
 
 if ! svn ls "$SVNPATH" >/dev/null 2>&1; then
 	echo "Creating directory in SVN for triage result"
-	svn mkdir -m"Adding directory for test triage results" "$SVNPATH"
+	svn mkdir --parents -m"Adding directory for test triage results" "$SVNPATH"
 fi
 
 svn co "$SVNPATH"
