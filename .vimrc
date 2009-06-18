@@ -36,7 +36,7 @@ if $TERM=='screen'
    exe "set title t_ts=\<ESC>k t_fs=\<ESC>\\"
 endif
 
-set mouse=a
+
 
 "
 " How to use split windows:

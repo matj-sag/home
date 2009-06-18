@@ -114,7 +114,7 @@ function prompt_command {
 	if [ -n "$task" ]; then
 		prompttask="$task"
 	else
-		prompttask="`basename $PWD`"
+		prompttask="`basename "$PWD"`"
 	fi
 
 	if [ "root" == "$usernam" ]; then

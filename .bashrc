@@ -191,6 +191,7 @@ fi
 
 # apama stuff
 . $HOME/.makepath.sh
+export AP_ASCII_COLOURS=true
 if [ "$TERM" == "rxvt-unicode" ]; then export TERM=rxvt; fi
 fi
     # env vars

@@ -20,8 +20,10 @@ if [ -d $HOME/apama-lib2/. ]; then
 	apama_lib=$HOME/apama-lib2
 elif [ -d /var/tmp/$USER/apama-lib2/. ]; then
 	apama_lib=/var/tmp/$USER/apama-lib2
-else
+elif [ -d /shared/apamabld/apama-lib2 ]; then
 	apama_lib=/shared/apamabld/apama-lib2
+elif [ -d /apama_build/shared/apama-lib2 ]; then
+	apama_lib=/apama_build/shared/apama-lib2
 fi
 
 buildtime=$apama_lib/$ipath
