@@ -1,0 +1,13 @@
+#!/bin/sh --
+
+if [ -z "$1" ]; then
+	echo "Usage: svnrevert <revision>"
+	echo "Reverts one revision on the working copy"
+	exit 1
+fi
+
+REV="$1"
+
+URI="`svn info | sed -n '/^URL/s/.*: //p'`"
+
+svn merge -c -"$REV" "$URI"

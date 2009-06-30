@@ -1,0 +1,41 @@
+#!/bin/sh --
+
+set -e
+
+if [ -z "$1" ] || [ "--help" = "$1" ]; then
+	echo "Usage: aprun [-w <working copy>] <command> [args...]"
+	echo "Runs a command (like a correlator) with the correct PATH and LD_LIBRARY_PATH"
+	echo "for the current (or specified) working copy"
+	exit 1
+fi
+
+if [ "-w" = "$1" ]; then
+	WC="$2"
+	shift
+	shift
+else
+	WC="`pwd`"
+	while [ "`basename "$WC"`" != "apama-src" ] && [ "`basename "$WC"`" != "/" ]; do
+		WC="`dirname "$WC"`"
+	done
+	if [ "`basename "$WC"`" == "apama-src" ]; then
+		WC="`dirname "$WC"`"
+	else
+		echo "Unable to find apama-src, please run this from within apama-src"
+		echo "or specify a checkout with -w"
+		exit 1
+	fi
+fi
+
+BUILDTYPE=`"$WC/apama-src/get_buildtype"`
+IPATH=`"$WC/apama-src/get_ipath"`
+PATH="$WC/apama-src/bin_$BUILDTYPE:$PATH"
+LD_LIBRARY_PATH="$WC/apama-src/lib_$BUILDTYPE:$LD_LIBRARY_PATH"
+LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/icu/3.8.1/lib:$LD_LIBRARY_PATH"
+LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/ptmalloc/3-apama2/lib:$LD_LIBRARY_PATH"
+
+export LD_LIBRARY_PATH
+export PATH
+
+"$@"
+
