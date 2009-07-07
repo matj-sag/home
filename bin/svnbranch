@@ -149,19 +149,24 @@ case $1 in
 		REV="`sed 's,^.*@,,' <<< $MERGE`"
 		if [ "$REV" == "$MERGEBRANCH" ]; then 
 			REV= 
+			exists=""
+			for i in $BRANCHES; do
+				if [ "$i" == "$MERGEBRANCH" ]; then
+					exists="1"
+				fi
+			done
+			if [ -z "$exists" ]; then
+				echo "Branch $MERGE does not exist, cannot merge it"
+				exit 1
+			fi
+		else
+			if ! svn ls $ROOT/branches/$MERGEBRANCH@$REV &>/dev/null; then
+				echo "Branch $MERGEBRANCH does not exist at revision $REV, cannot merge it"
+				exit 1
+			fi			
 		fi
 		if [ "$CURRENT" == "$MERGE" ]; then
 			echo "Already on branch $2"
-			exit 1
-		fi
-		exists=""
-		for i in $BRANCHES; do
-			if [ "$i" == "$MERGEBRANCH" ]; then
-				exists="1"
-			fi
-		done
-		if [ -z "$exists" ]; then
-			echo "Branch $MERGE does not exist, cannot merge it"
 			exit 1
 		fi
 		
