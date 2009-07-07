@@ -15,10 +15,10 @@ if [ "-w" = "$1" ]; then
 	shift
 else
 	WC="`pwd`"
-	while [ "`basename "$WC"`" != "apama-src" ] && [ "`basename "$WC"`" != "/" ]; do
+	while [ "`basename "$WC"`" != "apama-test" ] && [ "`basename "$WC"`" != "apama-src" ] && [ "`basename "$WC"`" != "/" ]; do
 		WC="`dirname "$WC"`"
 	done
-	if [ "`basename "$WC"`" == "apama-src" ]; then
+	if [ "`basename "$WC"`" == "apama-src" ] || [ "`basename "$WC"`" == "apama-test" ]; then
 		WC="`dirname "$WC"`"
 	else
 		echo "Unable to find apama-src, please run this from within apama-src"
