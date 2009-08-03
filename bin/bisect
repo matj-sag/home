@@ -3,7 +3,8 @@
 set -e
 
 usage() {
-	echo "Usage: bisect <working copy> <broken revision> <good revision> <test> [<outcome>] [<test options...>]"
+	echo "Usage: bisect <working copy> <broken revision> <good revision> [<test> [<outcome> [<test options...>]]]"
+	echo "If you don't give it a test it will prompt you to run the test and tell it if it passed or failed"
 }
 
 if [ -z "$4" ]; then
@@ -43,14 +44,16 @@ if ! svn info >/dev/null 2>&1; then
 	exit 1
 fi
 
-TESTPATH="`find apama-test -name "$TEST" -and -type d`"
+if [ -n "$TEST" ]; then
+	TESTPATH="`find apama-test -name "$TEST" -and -type d`"
 
-if ! [ -d "$TESTPATH" ]; then
-	echo "Can't find test $TEST in working copy"
-	usage
-	exit 1
+	if ! [ -d "$TESTPATH" ]; then
+		echo "Can't find test $TEST in working copy"
+		usage
+		exit 1
+	fi
+	TESTPATH="`dirname "$TESTPATH"`"
 fi
-TESTPATH="`dirname "$TESTPATH"`"
 
 width=
 case `hostname` in
@@ -101,7 +104,11 @@ else
 	
 fi
 
-echo " using test $TEST as a verifier"
+if [ -n "$TEST" ]; then
+	echo " using test $TEST as a verifier"
+else
+	echo " no test given, using manual verification"
+fi
 
 LOGPATH=$WCPATH/bisect
 mkdir -p $LOGPATH
@@ -126,11 +133,27 @@ while (( $top > $bottom )); do
 		nice -1 gmake $width -C apama-src clean &> $LOGPATH/$trial-build.log
 		nice -1 gmake $width -C apama-src >> $LOGPATH/$trial-build.log 2>&1
 	)
-	pushd "$TESTPATH" &>/dev/null
-	nice -1 ./runTest.py $TESTOPTIONS $TEST &> $LOGPATH/$trial-run.log
-	popd &>/dev/null
-	sed -n '/Outcome/s/.*: *//p' $LOGPATH/$trial-run.log
-	if grep PASSED $LOGPATH/$trial-run.log &>/dev/null; then
+	if [ -n "$TEST" ]; then
+		pushd "$TESTPATH" &>/dev/null
+		nice -1 ./runTest.py $TESTOPTIONS $TEST &> $LOGPATH/$trial-run.log
+		popd &>/dev/null
+		sed -n '/Outcome/s/.*: *//p' $LOGPATH/$trial-run.log
+		if grep PASSED $LOGPATH/$trial-run.log &>/dev/null; then
+			pass=1
+		else
+			pass=
+		fi
+	else
+		echo -n "Please run the test now and give the result (Pass or Fail): "
+		read result
+		if [ "${result:0:1}" == "P" ] || [ "${result:0:1}" == "p" ] ; then
+			pass=1
+		else
+			pass=
+		fi
+	fi
+	
+	if [ -n "$pass" ]; then
 		if [ "$regression" = "true" ]; then
 			bottom=$trial
 		else
