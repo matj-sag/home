@@ -1,3 +1,9 @@
+if [ "`hostname -d`" == "apama.com" ]; then
+	cambridge=1
+else
+	cambridge=
+fi
+
 if [ -x $HOME/apama-src/get_libtype ]; then
 	libname=`$HOME/apama-src/get_libtype`
 	buildname=`$HOME/apama-src/get_buildtype`
@@ -16,13 +22,9 @@ elif [ -x $HOME/bin/get_libtype ]; then
 	ipath=`$HOME/bin/get_ipath`
 fi
 
-if [ -d $HOME/apama-lib2/. ]; then
-	apama_lib=$HOME/apama-lib2
-elif [ -d /var/tmp/$USER/apama-lib2/. ]; then
-	apama_lib=/var/tmp/$USER/apama-lib2
-elif [ -d /shared/apamabld/apama-lib2 ]; then
+if [ -n "$cambridge" ]; then
 	apama_lib=/shared/apamabld/apama-lib2
-elif [ -d /apama_build/shared/apama-lib2 ]; then
+else
 	apama_lib=/apama_build/shared/apama-lib2
 fi
 
@@ -55,26 +57,42 @@ Linux-*-x86_64)
 	tools=/tools/linuxx86_64
 	java_arch=amd64
 	JAVA_HOME=$tools/java64/$java_version
+if [ -n "$cambridge" ]; then
 	PATH=$PATH:$tools/bin:/usr/rdl/linuxx86/bin:$HOME/git/linuxx86_64/bin
+else
+	PATH=$PATH:$tools/bin:/usr/rdl/linuxx86/bin
+fi
 	;;
 Linux-*-i686)
 	tools=/tools/linuxx86
 	java_arch=i386
+if [ -n "$cambridge" ]; then
 	PATH=$PATH:$tools/bin:/usr/rdl/linuxx86/bin:$HOME/git/linuxx86/bin
+else
+	PATH=$PATH:$tools/bin:/usr/rdl/linuxx86/bin
+fi
 	;;
 SunOS-*-i86*)
 	tools=/tools/solarisx86_64
 	java_arch=amd64
 	PATH=/usr/dt/bin:$PATH
 	PATH=$PATH:$tools/gmake-3.79.1/bin
+if [ -n "$cambridge" ]; then
 	PATH=$PATH:$tools/bin:/usr/rdl/solarisx86/bin:$HOME/git/solarisx86_64/bin
+else
+	PATH=$PATH:$tools/bin:/usr/rdl/solarisx86/bin
+fi
 	;;
 SunOS-*-sun*)
 	tools=/tools/solaris
 	java_arch=sparc
 	PATH=/usr/dt/bin:$PATH
 	PATH=$PATH:$tools/gmake-3.79.1/bin
+if [ -n "$cambridge" ]; then
 	PATH=$PATH:$tools/bin:/usr/rdl/solaris/bin:$HOME/git/solaris/bin
+else
+	PATH=$PATH:$tools/bin:/usr/rdl/solaris/bin
+fi
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH${LD_LIBRARY_PATH:+:}/usr/local/lib
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/ssl/lib
 	if [ "$TERM" = "xterm-color" ]; then
@@ -117,13 +135,25 @@ Linux-*-x86_64 | Linux-*-i686 | SunOS-* | FreeBSD-[567]*)
 	;;
 esac
 
-# load git completion and PS1 stuff
-if [ -f $HOME/git/completion.bash ]; then
-	. $HOME/git/completion.bash
+if [ -n "$cambridge" ]; then
+	# load git completion and PS1 stuff
+	if [ -f $HOME/git/completion.bash ]; then
+		. $HOME/git/completion.bash
+	fi
 fi
 	
 
-PATH=$HOME/bin:$PATH
+if [ -n "$cambridge" ]; then
+	PATH="$HOME/bin:$PATH"
+elif [ "$USER" == "majohnso" ]; then
+	mkdir -p /scratch/mjj29
+	[ -d /scratch/mjj29/bin ] || svn co -q http://svn.apama.com/dev/users/mjj29/home/bin /scratch/mjj29/bin
+	PATH="/scratch/mjj29/bin:$PATH"
+else
+	mkdir -p "/scratch/$USER"
+	rsync -qaz --exclude .svn "$HOME/bin/" "/scratch/$USER/bin"
+	PATH="/scratch/$USER/bin:$PATH"
+fi
 BASH_PROFILE="`date`"
 
 # Clean up shell environment a bit

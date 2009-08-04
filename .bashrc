@@ -123,13 +123,13 @@ if [ "$PS1" ]; then
     else
       PS1='\u@\h:\w \$'
     fi
+	 
+	 . $HOME/.makepath.sh
 
     # PATH
     if [[ "`uname`" = "IRIX" ]];
     then 
        export PATH=/usr/freeware/bin:$PATH:$HOME/bin:/usr/bin/jdk:$HOME/Docs/programming/c/bin:/usr/etc/
-    else
-       export PATH=$HOME/bin:$PATH:/usr/bin/jdk:$HOME/Docs/programming/c/bin
     fi
 
     # bash completion
@@ -190,7 +190,6 @@ fi
     export PATH=$PATH:/opt/apama_4.0/bin:/opt/vmware/bin:/opt/vmware/sbin
 
 # apama stuff
-. $HOME/.makepath.sh
 export AP_ASCII_COLOURS=true
 if [ "$TERM" == "rxvt-unicode" ]; then export TERM=rxvt; fi
 fi

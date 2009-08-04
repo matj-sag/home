@@ -7,7 +7,7 @@ usage() {
 	echo "If you don't give it a test it will prompt you to run the test and tell it if it passed or failed"
 }
 
-if [ -z "$4" ]; then
+if [ -z "$3" ]; then
 	usage
 	exit 1
 fi
@@ -15,7 +15,13 @@ fi
 WCPATH="$1"
 badrev="$2"
 goodrev="$3"
-TEST="$4"
+
+if [ -z "$4" ]; then
+	TEST=
+else
+	TEST="$4"
+	shift
+fi
 
 if [ -z "$5" ]; then
 	outcome=PASSED
@@ -24,7 +30,6 @@ else
 	shift
 fi
 
-shift
 shift
 shift
 shift
@@ -37,6 +42,7 @@ if ! [ -d "$WCPATH" ]; then
 fi
 
 cd "$WCPATH"
+WCPATH="`pwd`"
 
 if ! svn info >/dev/null 2>&1; then
 	echo "$WCPATH does not appear to be an svn working copy"
