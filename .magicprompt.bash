@@ -1,3 +1,9 @@
+if [ "`hostname -d`" == "apama.com" ]; then
+	cambridge=1
+else
+	cambridge=
+fi
+
 GRAY="\[\033[1;30m\]"
 LIGHT_GRAY="\[\033[0;37m\]"
 WHITE="\[\033[1;37m\]"
@@ -63,14 +69,20 @@ function rc {
 	export last=`cut -d: -f2- <<< $rcinput`
 }
 
-function vcs {
-   local LD_LIBRARY_PATH= 
-   if [ -d .svn ] && which svn 2>/dev/null | grep ^/ >/dev/null; then
-      vcsprompt="(svn:`parse_svn`) "
-	else
-      vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"
-   fi
-}
+if [ -n "$cambridge" ]; then
+	function vcs {
+		local LD_LIBRARY_PATH= 
+		if [ -d .svn ] && which svn 2>/dev/null | grep ^/ >/dev/null; then
+			vcsprompt="(svn:`parse_svn`) "
+		else
+			vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"
+		fi
+	}
+else
+	function vcs {
+		vcsprompt=
+	}
+fi
 
 function prompt_command {
    local LD_LIBRARY_PATH= 

@@ -165,6 +165,7 @@ unset APAMA_LIBTYPE APAMA_BUILDTYPE APAMA_SUBMAKE
 unset apama_lib buildname libname ipath buildtime buildtime_java runtime runtime_java tools
 unset tao_version icu_version libxml2_version psepro_version ant_version java_version
 unset tao_ld_library_path icu_ld_library_path libxml2_ld_library_path psepro_ld_library_path java_ld_library_path java_arch
+unset cambridge
 
 # Export any envars we might have changed
 export PATH LD_LIBRARY_PATH JAVA_HOME ANT_HOME
