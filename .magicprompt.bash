@@ -1,7 +1,15 @@
-if [ "`hostname -d`" == "apama.com" ]; then
-	cambridge=1
+if [ "`uname`" == "SunOS" ]; then
+	if grep apama.com /etc/hosts &>/dev/null; then
+		cambridge=1
+	else
+		cambridge=
+	fi
 else
-	cambridge=
+	if [ "`hostname -d`" == "apama.com" ]; then
+		cambridge=1
+	else
+		cambridge=
+	fi
 fi
 
 GRAY="\[\033[1;30m\]"
