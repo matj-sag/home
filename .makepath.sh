@@ -1,4 +1,4 @@
-if [ "`uname`" == "SunOS" ]; then
+if [ "`uname`" == "SunOS" ] || [ "`uname`" == "FreeBSD" ]; then
 	if grep apama.com /etc/hosts &>/dev/null; then
 		cambridge=1
 	else

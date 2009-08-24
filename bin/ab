@@ -255,14 +255,14 @@ function ab_test()
 	_lock test-$APAMA_MACHTYPE-$TEST
 	mkdir -p $TESTRESULTS/$TEST/$APAMA_MACHTYPE
 	mkdir -p $TEST/Output
-	ln -sf $TESTRESULTS/$TEST/$APAMA_MACHTYPE $TEST/Output/outputlink-$APAMA_MACHTYPE
+	ln -sf $TESTRESULTS/$TEST/$APAMA_MACHTYPE $TEST/Output/outputlink-`hostname`-$APAMA_MACHTYPE
 	set +e
 	if [ -n "$STRACE" ]; then
-		strace -fF -v -x -s 4096 ./runTest.py -o outputlink-$APAMA_MACHTYPE "$@" $TEST 2> "$TESTRESULTS/$TEST-$APAMA_MACHTYPE-strace.log"
+		strace -fF -v -x -s 4096 ./runTest.py -o outputlink-`hostname`-$APAMA_MACHTYPE "$@" $TEST 2> "$TESTRESULTS/$TEST-$APAMA_MACHTYPE-strace.log"
 		mv "$TESTRESULTS/$TEST-$APAMA_MACHTYPE-strace.log" "$TESTRESULTS/$TEST/$APAMA_MACHTYPE/strace.log"
 		echo "Strace output in $TESTRESULTS/$TEST/$APAMA_MACHTYPE/strace.log"
 	else
-		nice -2 ./runTest.py -o outputlink-$APAMA_MACHTYPE "$@" $TEST
+		nice -2 ./runTest.py -o outputlink-`hostname`-$APAMA_MACHTYPE "$@" $TEST
 	fi
 	_unlock test-$APAMA_MACHTYPE-$TEST
 	_munlock build-test-$APAMA_MACHTYPE
