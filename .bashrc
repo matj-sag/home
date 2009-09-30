@@ -90,10 +90,13 @@ if [ "$PS1" ]; then
 		pat="$1"
 		shift
 		unset paths
-		while [ -n "$1" ] && [ "${1:0:1}" != "-" ]; do
+		while [ -n "$1" ] && [ "${1:0:1}" != "-" ] && [ "${1}" != "(" ]; do
 			paths="$paths $1"
 			shift
 		done
+		if [ -z "$paths" ]; then
+			paths=.
+		fi
 		if [ "`uname`" != "SunOS" ]; then
 			if [ -z "$1" ]; then
 				set -x

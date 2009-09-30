@@ -38,9 +38,13 @@ endif
 
 let Tlist_Ctags_Cmd = "/usr/bin/ctags"
 let Tlist_WinWidth = 50
-map <F4> :TlistToggle<cr>
+map <F1> :TlistToggle<cr>
+map <F9> :!/usr/bin/ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 
-map <F8> :!/usr/bin/ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
+map <F8> :make -kj16 NOJAVA=true<CR>
+map ] :cn<cr>
+map [ :cp<cr>
+
 
 
 "
