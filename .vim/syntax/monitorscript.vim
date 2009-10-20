@@ -16,11 +16,11 @@ syn case ignore
 " Keywords:
 syn keyword msExternal  	package
 syn keyword msBoolean  		false true
-syn keyword msStatement		as on all action wait return monitor event import returns route emit to wildcard call spawn die enqueue print log at in within unmatched completed currentTime
-syn keyword msOpertaor  	new not and xor
+syn keyword msStatement		as on all action wait return monitor event import returns route emit to wildcard call spawn die enqueue print log at in within unmatched completed currentTime from select in using retain batch within partition by join in where group having istream rstream into generates aggregate
+syn keyword msOpertaor  	new not and xor equals
 syn keyword msRepeat		while for do break continue
 syn keyword msConditional	if then else
-syn keyword msType		integer string boolean float sequence dictionary
+syn keyword msType		integer string boolean float sequence dictionary stream
 
 " Strings and characters:
 syn region msString		start=+"+  skip=+\\\\\|\\"+  end=+"+
