@@ -12,15 +12,15 @@ else
 	fi
 fi
 
-GRAY="\[\033[1;30m\]"
-LIGHT_GRAY="\[\033[0;37m\]"
-WHITE="\[\033[1;37m\]"
-GREEN="\[\033[1;32m\]"
-RED="\[\033[1;31m\]"
-NO_COLOUR="\[\033[0m\]"
+export GRAY="\[\033[1;30m\]"
+export LIGHT_GRAY="\[\033[0;37m\]"
+export WHITE="\[\033[1;37m\]"
+export GREEN="\[\033[1;32m\]"
+export RED="\[\033[1;31m\]"
+export NO_COLOUR="\[\033[0m\]"
 
-LIGHT_BLUE="\[\033[1;34m\]"
-YELLOW="\[\033[1;33m\]"
+export LIGHT_BLUE="\[\033[1;34m\]"
+export YELLOW="\[\033[1;33m\]"
 
 # hash the hostname to get a colour
 if [ -z "$hostcolour" ]; then
@@ -37,6 +37,7 @@ if [ -z "$hostcolour" ]; then
 	done
 	hostcolour="\[\033[1;3$(( ( ${#hcdata} + ${sum} ) % 10 ))m\]"
 fi
+export hostcolour
 
 unset task
 uname=`uname -sm`
@@ -138,9 +139,9 @@ function prompt_command {
 	fi
 
 	if [ "root" == "$usernam" ]; then
-		usercolor=$RED
+		export usercolor=$RED
 	else
-		usercolor=$WHITE
+		export usercolor=$WHITE
 	fi
 
 }
