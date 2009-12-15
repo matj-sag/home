@@ -3,7 +3,7 @@ clear
 echo -e ${usercolor}$USER$NO_COLOUR | sed 's/\\[][]//g'
 echo -e ${hostcolour}`hostname`$NO_COLOUR | sed 's/\\[][]//g'
 echo -e ${WHITE}`uname -sm`$NO_COLOUR | sed 's/\\[][]//g'
-if [ "`uname`" = "Linux" ]; then
+if [ -x /usr/bin/lsb_release ]; then
 	lsb_release -irs
 fi
 read nothing
