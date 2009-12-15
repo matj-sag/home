@@ -42,6 +42,7 @@ map <F1> :TlistToggle<cr>
 map <F9> :!/usr/bin/ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 
 map <F8> :make -kj16 NOJAVA=true<CR>
+map <F7> :make -kj16 DEBUG=true NOJAVA=true<CR>
 map ] :cn<cr>
 map [ :cp<cr>
 
