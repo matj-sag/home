@@ -31,18 +31,23 @@ else
 fi
 
 if [ -z "$FULL" ]; then
-	svn -q up apama-src 
-	echo "apama-src checked out"
-	svn -q up -N apama-test  
-	cd apama-test 
-	svn -q up -N system etc doc examples unit
-	svn -q up licences python_scripts tools utils
-	cd unit
-	svn -q up -N correlator-core  correlator-hypertree correlator-jmon cxxtest dsm junit lib samples studio
-	svn -q up cpp-common dotNet-common iaf java-common osee remote-executables sender-merger tools
-	echo "apama-test partially checked out"
-	cd ..
-	cd ..
+	svn -q up -N apama-src apama-test
+	FILES=$(cd apama-src; svn ls)
+	(
+		cd apama-src
+		svn -q up $FILES
+		echo "apama-src checked out" 
+	) &
+	(
+		cd apama-test 
+		svn -q up -N system etc doc examples unit
+		svn -q up licences python_scripts tools utils
+		cd unit
+		svn -q up -N correlator-core  correlator-hypertree correlator-jmon cxxtest dsm junit lib samples studio
+		svn -q up cpp-common dotNet-common iaf java-common osee remote-executables sender-merger tools
+		echo "apama-test partially checked out"
+	) &
+	wait
 fi
 svn switch --relocate svn://svn.apama.com/branches/$BRANCH http://svn.apama.com/dev/branches/$BRANCH
 echo "All done and switch to R/W repository"
