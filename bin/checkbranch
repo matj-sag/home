@@ -14,9 +14,9 @@
 
 if [ "$USER" = "mjj29" ]; then
 	WINHOSTS="gulliver"
-	HOSTS="conman badboy hale polaris"
+	HOSTS="vandal hoodie hale polaris"
 else
-	HOSTS="hoodie badboy bopp vega"
+	HOSTS="conman hoodie bopp vega"
 fi
 if [ -z "$RAMDISKS" ]; then
 	RAMDISKS="asbo hoodie conman"
