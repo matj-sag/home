@@ -144,7 +144,7 @@ while (( $top > $bottom )); do
 		nice -1 ./runTest.py $TESTOPTIONS $TEST &> $LOGPATH/$trial-run.log
 		popd &>/dev/null
 		sed -n '/Outcome/s/.*: *//p' $LOGPATH/$trial-run.log
-		if grep PASSED $LOGPATH/$trial-run.log &>/dev/null; then
+		if grep $outcome $LOGPATH/$trial-run.log &>/dev/null; then
 			pass=1
 		else
 			pass=
