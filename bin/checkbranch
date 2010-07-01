@@ -19,7 +19,7 @@ else
 	HOSTS="conman hoodie bopp vega"
 fi
 if [ -z "$RAMDISKS" ]; then
-	RAMDISKS="asbo hoodie conman"
+	RAMDISKS="asbo vandal conman"
 fi
 RAMDISKPATH=/dev/shm
 BUILDPATH=/var/tmp
