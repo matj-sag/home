@@ -14,12 +14,12 @@
 
 if [ "$USER" = "mjj29" ]; then
 	WINHOSTS="gulliver"
-	HOSTS="vandal hoodie hale polaris"
+	HOSTS="goth hoodie hale polaris"
 else
-	HOSTS="conman hoodie bopp vega"
+	HOSTS="vandal hoodie bopp vega"
 fi
 if [ -z "$RAMDISKS" ]; then
-	RAMDISKS="asbo vandal conman"
+	RAMDISKS="asbo vandal conman goth"
 fi
 RAMDISKPATH=/dev/shm
 BUILDPATH=/var/tmp
@@ -56,8 +56,11 @@ fi
 
 width=
 case `hostname` in
+	goth.apama.com)
+		width="-j12"
+		;;
 	hoodie.apama.com)
-		width="-j6"
+		width="-j12"
 		;;
 	conman.apama.com)
 		width="-j12"
