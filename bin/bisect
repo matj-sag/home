@@ -35,7 +35,7 @@ shift
 shift
 TESTOPTIONS="$*"
 
-if ! [ -d "$WCPATH" ]; then
+if ! [ -d "$WCPATH/apama-src" ]; then
 	echo "Cannot find working copy $WCPATH"
 	usage
 	exit 1
@@ -51,6 +51,7 @@ if ! svn info >/dev/null 2>&1; then
 fi
 
 if [ -n "$TEST" ]; then
+	echo "Searching for $TEST in $WCPATH/apama-test"
 	TESTPATH="`find apama-test -name "$TEST" -and -type d`"
 
 	if ! [ -d "$TESTPATH" ]; then
@@ -135,9 +136,9 @@ while (( $top > $bottom )); do
 	echo -n "Trying r$trial ... "
 
 	svn up -r$trial apama-src &> $LOGPATH/$trial-up.log
-	nice -1 gmake $width -C apama-src > $LOGPATH/$trial-build.log 2>&1 || (
-		nice -1 gmake $width -C apama-src clean &> $LOGPATH/$trial-build.log
-		nice -1 gmake $width -C apama-src >> $LOGPATH/$trial-build.log 2>&1
+	nice -1 gmake DEBUG=true NOJAVA=true $width -C apama-src > $LOGPATH/$trial-build.log 2>&1 || (
+		nice -1 gmake DEBUG=true $width -C apama-src clean &> $LOGPATH/$trial-build.log
+		nice -1 gmake DEBUG=true $width -C apama-src >> $LOGPATH/$trial-build.log 2>&1
 	)
 	if [ -n "$TEST" ]; then
 		pushd "$TESTPATH" &>/dev/null
