@@ -1,4 +1,4 @@
-#  $Copyright(c) 2005-2006, 2008 Progress Software Corporation (PSC). All rights reserved.$
+#  $Copyright(c) 2005-2006, 2009 Progress Software Corporation (PSC). All rights reserved.$
 #
 # Shell script fragment to define the mapping from APAMA_MACHTYPE to
 # APAMA_LIBTYPE and APAMA_BUILDTYPE.  Should be sourced by another script
@@ -9,7 +9,7 @@
 # If APAMA_MACHTYPE does not match any known value, both APAMA_LIBTYPE
 # and APAMA_BUILDTYPE will be set to the value of APAMA_MACHTYPE.
 #
-# $Id: get_platform.sh 95669 2008-12-09 22:18:24Z kdillon $
+# $Id: get_platform.sh 142629 2010-08-04 16:27:27Z dfournie $
 #
 
 #
@@ -53,10 +53,31 @@ ia32-suse10-linux2.6-gnu2.4-gcc4.1.*)
     APAMA_CERTTYPE=ia32-suse10-linux-gnu
 ;;
 
-#red hat 5 32 bit
-ia32-rhel5-linux2.6-gnu2.5-gcc4.1.*)
+#suse 11 32 bit
+ia32-suse11-linux2.6-gnu2.11-gcc4.3.*)
+    APAMA_LIBTYPE=ia32-rhel5-linux-gnu4.1.2
+    APAMA_BUILDTYPE=ia32-rhel5-linux-gnu
+    APAMA_CERTTYPE=ia32-suse11-linux-gnu
+;;
+
+#red hat 4 32 bit using ptmalloc3
+ia32-rhel4-ptmalloc3-linux2.6-gnu2.3-gcc3.4.6)
     APAMA_LIBTYPE=ia32-rhel4-linux-gnu3.4.6
     APAMA_BUILDTYPE=ia32-rhel4-linux-gnu
+    APAMA_CERTTYPE=ia32-rhel4-ptmalloc3-linux-gnu
+;;
+
+#red hat 5 32 bit using ptmalloc3
+ia32-rhel5-ptmalloc3-linux2.6-gnu2.5-gcc4.1.2)
+    APAMA_LIBTYPE=ia32-rhel5-linux-gnu4.1.2
+    APAMA_BUILDTYPE=ia32-rhel5-linux-gnu
+    APAMA_CERTTYPE=ia32-rhel5-ptmalloc3-linux-gnu
+;;
+
+#red hat 5 32 bit
+ia32-rhel5-linux2.6-gnu2.5-gcc4.1.*)
+    APAMA_LIBTYPE=ia32-rhel5-linux-gnu4.1.2
+    APAMA_BUILDTYPE=ia32-rhel5-linux-gnu
     APAMA_CERTTYPE=ia32-rhel5-linux-gnu
 ;;
 
@@ -87,10 +108,31 @@ amd64-suse10-linux2.6-gnu2.4-gcc4.1.*)
     APAMA_CERTTYPE=amd64-suse10-linux-gnu
 ;;
 
-#red hat 5 64 bit
-amd64-rhel5-linux2.6-gnu2.5-gcc4.1.*)
+#suse 11 64 bit
+amd64-suse11-linux2.6-gnu2.11-gcc4.3.*)
+    APAMA_LIBTYPE=amd64-rhel5-linux-gnu4.1.2
+    APAMA_BUILDTYPE=amd64-rhel5-linux-gnu
+    APAMA_CERTTYPE=amd64-suse11-linux-gnu
+;;
+
+#red hat 4 64 bit using ptmalloc3
+amd64-rhel4-ptmalloc3-linux2.6-gnu2.3-gcc3.4.6)
     APAMA_LIBTYPE=amd64-rhel4-linux-gnu3.4.6
     APAMA_BUILDTYPE=amd64-rhel4-linux-gnu
+    APAMA_CERTTYPE=amd64-rhel4-ptmalloc3-linux-gnu
+;;
+
+#red hat 5 64 bit using ptmalloc3
+amd64-rhel5-ptmalloc3-linux2.6-gnu2.5-gcc4.1.2)
+    APAMA_LIBTYPE=amd64-rhel5-linux-gnu4.1.2
+    APAMA_BUILDTYPE=amd64-rhel5-linux-gnu
+    APAMA_CERTTYPE=amd64-rhel5-ptmalloc3-linux-gnu
+;;
+
+#red hat 5 64 bit
+amd64-rhel5-linux2.6-gnu2.5-gcc4.1.*)
+    APAMA_LIBTYPE=amd64-rhel5-linux-gnu4.1.2
+    APAMA_BUILDTYPE=amd64-rhel5-linux-gnu
     APAMA_CERTTYPE=amd64-rhel5-linux-gnu
 ;;
 
@@ -125,15 +167,32 @@ sparc-sun-solaris2.*-studio8)
 ;;
 
 sparc-sun-solaris10-studio11)
-    APAMA_LIBTYPE=sparc-sun-solaris2.8-forte6r2
-    APAMA_BUILDTYPE=sparc-sun-solaris
-    APAMA_CERTTYPE=sparc-sun-solaris
+	echo "" 1>&2
+	echo "Spot. This is down. Down is good" 1>&2
+	echo "" 1>&2
+	echo "You have set your APAMA_MACHTYPE to sparc-sun-solaris10-studio11. This is no longer supported " 1>&2
+	echo "in Aztec. The correct APAMA_MACHTYPE for solaris sparc is now:" 1>&2
+	echo "" 1>&2
+	echo "   sparc64-sun-solaris10-studio12" 1>&2
+	echo "" 1>&2
+	echo "Please reset APAMA_MACHTYPE to this value and try again." 1>&2
+	echo "" 1>&2
+	echo "export APAMA_MACHTYPE=sparc64-sun-solaris10-studio12" 1>&2
+	echo "" 1>&2
+	echo "Of course, you may have already done this, in which case it might be because the UPS needs a battery backup." 1>&2
+	exit 1
 ;;
 
 amd64-sun-solaris10-studio12)
     APAMA_LIBTYPE=amd64-sun-solaris10-studio12
     APAMA_BUILDTYPE=amd64-sun-solaris
     APAMA_CERTTYPE=amd64-sun-solaris
+;;
+
+sparc64-sun-solaris10-studio12)
+    APAMA_LIBTYPE=sparc64-sun-solaris10-studio12
+    APAMA_BUILDTYPE=sparc64-sun-solaris
+    APAMA_CERTTYPE=sparc64-sun-solaris
 ;;
 
 # Compatibility fallback for Debian/Ubuntu Linux
@@ -145,18 +204,18 @@ i?86-pc-linux-gnu)
 
 # Windows
 i586-win32-msvc7.1)
-	echo ""
-	echo "Fry, as you know, there are lots of things I'm willing to kill for... jewels, vengeance, Father O'Mallee's weed-whacker. "
-	echo "But at long last I've found something I'm willing to die for... this mindless turtle."
-	echo ""
-	echo "You have set your APAMA_MACHTYPE to i586-win32-msvc7.1. This is no longer supported "
-	echo "in Aztec. The correct APAMA_MACHTYPE for 32bit Windows is now:"
-	echo
-	echo "   ia32-win32-msvc9"
-	echo
-	echo "Please reset APAMA_MACHTYPE to this value and try again."
-	echo
-	echo "Of course, you may have already done this, in which case it might be because the firewall needs cooling."
+	echo "" 1>&2
+	echo "Fry, as you know, there are lots of things I'm willing to kill for... jewels, vengeance, Father O'Mallee's weed-whacker. " 1>&2
+	echo "But at long last I've found something I'm willing to die for... this mindless turtle." 1>&2
+	echo "" 1>&2
+	echo "You have set your APAMA_MACHTYPE to i586-win32-msvc7.1. This is no longer supported " 1>&2
+	echo "in Aztec. The correct APAMA_MACHTYPE for 32bit Windows is now:" 1>&2
+	echo 1>&2
+	echo "   ia32-win32-msvc9" 1>&2
+	echo 1>&2
+	echo "Please reset APAMA_MACHTYPE to this value and try again." 1>&2
+	echo 1>&2
+	echo "Of course, you may have already done this, in which case it might be because the firewall needs cooling." 1>&2
 	exit 1
 
 ;;
@@ -210,6 +269,8 @@ get_install_path() {
 		return 0;
 	elif [ "" != "`echo $APAMA_LIBTYPE | sed -n '/^amd64/p'`" ]; then
 		IPATH="$IPATH/amd64"
+	elif [ "" != "`echo $APAMA_LIBTYPE | sed -n '/^sparc64/p'`" ]; then
+		IPATH="$IPATH/sparc64"
 	elif [ "" != "`echo $APAMA_LIBTYPE | sed -n '/^sparc/p'`" ]; then
 		IPATH="$IPATH/sparc32"
 	elif [ "" != "`echo $APAMA_LIBTYPE | sed -n '/^ia32/p'`" ]; then
