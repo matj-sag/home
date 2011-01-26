@@ -23,10 +23,10 @@ else
 	shift
 fi
 
-if [ -z "$5" ]; then
+if [ -z "$4" ]; then
 	outcome=PASSED
 else
-	outcome="$5"
+	outcome="$4"
 	shift
 fi
 

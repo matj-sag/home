@@ -189,8 +189,6 @@ fi
     export DEBEMAIL=mjj29@debian.org
     export LOCKPRG=/usr/bin/vlock
     export QUILT_PATCHES=debian/patches
-    export LD_LIBRARY_PATH=/opt/apama_4.0/lib:/opt/vmware/lib
-    export PATH=$PATH:/opt/apama_4.0/bin:/opt/vmware/bin:/opt/vmware/sbin
 
 # apama stuff
 export AP_ASCII_COLOURS=true
