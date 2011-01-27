@@ -5,8 +5,22 @@ set -e
 MASTER=int/4.0.0.0
 BRANCHCACHE="/tmp/.svnbranch-$USER-branchcache"
 
+branchtourl() {
+	svn info | sed -n '/^URL/s,URL: \(.*\)'"$CURRENT"'\(.*\),\1'"$1"'\2,p'
+}
+
+branchexists() {
+	exists=1
+	for i in $BRANCHES; do
+		if [ "$i" = "$branch" ]; then
+			exists=0
+		fi
+	done
+	return $exists
+}
+
 usage() {
-	echo "Usage: svnbranch [--new <branch>|--delete <branch>|--merge <branch>|<branch>|--update|--rebase <my branch> <their branch>]"
+	echo "Usage: svnbranch [--new <branch>|--delete <branch>|--merge <branch>|<branch>|--update|--rebase <my branch> <their branch>|--log [branch] [revision]]"
 }
 merge() {
 	MERGE="$1"
@@ -110,6 +124,37 @@ update() {
 	BRANCHES="`cat "$BRANCHCACHE"`"
 }
 
+parselogoutput() {
+	while read line; do 
+		if grep '^r[0-9]' &>/dev/null <<< "$line"; then
+			revision=$(sed 's,r\([0-9]*\) .*,\1,' <<< "$line")
+			revision=$(( $revision - 2 ))
+			echo $revision
+		fi
+	done | tail -n1
+}
+
+log() {
+	branch=$1
+
+	if ! branchexists "$branch"; then
+		echo "Branch $branch does not exist"
+		exit 1
+	fi
+	revision=$2
+	URL="$(branchtourl "$branch")"
+	while true; do
+		set +e
+		OUTPUT=$(svn log --stop-on-copy "$URL@$revision" 2>/dev/null)
+		RV=$?
+		set -e
+		if [ "0" != "$RV" ]; then break; fi
+		echo "$OUTPUT"
+
+		revision=$(echo "$OUTPUT" | parselogoutput)
+	done
+}
+
 if ! [ -d .svn ]; then
 	echo "Not in an svn repository"
 	exit 1
@@ -149,13 +194,7 @@ case $1 in
 		REV="`sed 's,^.*@,,' <<< $MERGE`"
 		if [ "$REV" == "$MERGEBRANCH" ]; then 
 			REV= 
-			exists=""
-			for i in $BRANCHES; do
-				if [ "$i" == "$MERGEBRANCH" ]; then
-					exists="1"
-				fi
-			done
-			if [ -z "$exists" ]; then
+			if ! branchexists "$MERGEBRANCH"; then
 				echo "Branch $MERGE does not exist, cannot merge it"
 				exit 1
 			fi
@@ -186,22 +225,24 @@ case $1 in
 			echo "Looks like you are trying to rebase an integration branch. You probably don't want to do this!"
 			exit 1
 		fi
-		exists=""
-		for i in $BRANCHES; do
-			if [ "$i" == "$REBASE" ]; then
-				exists="${exists}1"
-			fi
-			if [ "$i" == "$REBASESRCBRANCH" ]; then
-				exists="${exists}1"
-			fi
-		done
-		if [ "$exists" != "11" ]; then
-			echo "Branches $REBASE and/or $REBASESRC do not exist, cannot rebase"
+		if ! branchexists "$REBASE"; then
+			echo "Branch $REBASE does not exist, cannot rebase"
+			exit 1
+		fi
+		if ! branchexists "$REBASESRCBRANCH"; then
+			echo "Branch $REBASESRC does not exist, cannot rebase"
 			exit 1
 		fi
 		
 		rebase "$REBASE" "$REBASESRC"
 		update
+	;;
+	"--log")
+		if [ -n "$2" ]; then branch="$2"
+		else branch="$CURRENT"; fi
+		if [ -n "$3" ]; then revision="$3"
+		else revision=HEAD; fi
+		log "$branch" "$revision"
 	;;
 	"-c"|"-C"|"--create"|"-n"|"-N"|"--new")
 		update
@@ -219,22 +260,16 @@ case $1 in
 		else 
 			BASIS="$CURRENT"
 		fi
-		basisexists=""
-		for i in $BRANCHES; do
-			if [ "$i" == "$NEW" ]; then
-				echo "Branch $NEW already exists"
-				exit 1
-			fi
-			if [ "$i" == "$BASIS" ]; then
-				basisexists="1"
-			fi
-		done
-		if [ "${NEW:0:4}" != "dev/" ]; then
-			echo "Branch not under dev/; cannot create"
+		if branchexists "$NEW"; then
+			echo "Branch $NEW already exists"
 			exit 1
 		fi
-		if [ -z "$basisexists" ]; then
+		if ! branchexists "$BASIS"; then
 			echo "Branch $BASIS does not exist, cannot copy from it"
+			exit 1
+		fi
+		if [ "${NEW:0:4}" != "dev/" ]; then
+			echo "Branch not under dev/; cannot create"
 			exit 1
 		fi
 		
