@@ -1,0 +1,15 @@
+#!/bin/sh --
+
+if [ -n "$1" ]; then
+	echo "Usage: svncopyright"
+	echo "Lists svn modified/added files with an out of date copyright header"
+fi
+
+for i in $(svn st -q | sed 's/.......//'); do
+	if ! head "$i" | grep Copyright &>/dev/null; then
+		echo "No copyright: $i"
+	elif ! head $i | grep Copyright | grep $(date +%Y) &>/dev/null; then
+		echo "Old copyright: $i"
+	fi
+done
+

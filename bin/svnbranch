@@ -11,6 +11,7 @@ branchtourl() {
 
 branchexists() {
 	exists=1
+	branch="$1"
 	for i in $BRANCHES; do
 		if [ "$i" = "$branch" ]; then
 			exists=0
