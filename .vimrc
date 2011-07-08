@@ -39,10 +39,11 @@ let Tlist_WinWidth = 50
 map <F1> :TlistToggle<cr>
 "map <F9> :!/usr/bin/ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 
-map <F8> :make -Rkj16 NOJAVA=true<CR>
-map <F7> :make -Rkj16 DEBUG=true NOJAVA=true<CR>
+map <F8> :make -Rkj16 cpp java-core<CR>
+map <F7> :make -Rkj16 DEBUG=true cpp java-core<CR>
 map <F9> :cp<cr>
 map <F10> :cn<cr>
+map sfl :set foldlevel=9999<CR>
 
 
 
