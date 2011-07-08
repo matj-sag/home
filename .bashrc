@@ -57,7 +57,6 @@ if [ "$PS1" ]; then
     alias rn='ls'
     alias changelogcommit="git status -v changelog | grep ^+ | git commit -a -e -F -"
     alias rls='ls | head -n $(( $RANDOM % `ls | wc -l` + 1)) | tail -n1'
-    alias :q='exit'
 	 alias cd='pushd $PWD;popd +20 -n&>/dev/null || true;cd'
 	 alias mine='psa | grep $USER'
 	 alias svnls='svn ls'
@@ -119,6 +118,14 @@ if [ "$PS1" ]; then
 			fi
 		fi
 	}
+	function tests () 
+	{ 
+		ps aux | grep "^`whoami`.*correlator -l" | awk '{print $2}' | while read i
+			do 
+				echo -n "$i: "
+				readlink -f /proc/$i/cwd | sed 's,.*\(testcases/[a-z]*\|testresults\)/\([^/]*\)/.*,\2,'
+			done 
+	}
     
     # set a fancy prompt
     if [ $TERM != "dumb" ] && [ -f $HOME/.magicprompt.bash ]; then
@@ -176,15 +183,19 @@ if [ "$PS1" ]; then
        fi
     fi
 
-if which gvim 2>/dev/null | grep ^/ >/dev/null && [ -n "$DISPLAY" ]; then
-    export EDITOR=gvim
-    export PAGER="sh -c 'sed s/.//g | gview -'"
-elif which vim 2>/dev/null | grep ^/ >/dev/null ; then
-    export EDITOR=vim
-    export PAGER="sh -c 'sed s/.//g | view -'"
-elif which less 2>/dev/null | grep ^/ >/dev/null ; then
-    export EDITOR=vi
-    export PAGER="less"
+if [ "`uname`" = "SunOS" ]; then
+	export PAGER=more
+else
+	if which gvim 2>/dev/null | grep ^/ >/dev/null && [ -n "$DISPLAY" ]; then
+		 export EDITOR=gvim
+		 export PAGER="sh -c 'sed s/.//g | gview -'"
+	elif which vim 2>/dev/null | grep ^/ >/dev/null ; then
+		 export EDITOR=vim
+		 export PAGER="sh -c 'sed s/.//g | view -'"
+	elif which less 2>/dev/null | grep ^/ >/dev/null ; then
+		 export EDITOR=vi
+		 export PAGER="less"
+	fi
 fi
     export DEBEMAIL=mjj29@debian.org
     export LOCKPRG=/usr/bin/vlock
