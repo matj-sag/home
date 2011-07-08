@@ -104,7 +104,6 @@ function prompt_command {
 	fi
 
 	TERMWIDTH=${COLUMNS}
-	DATE=`date +%H:%M`
 
 	#   Calculate the width of the prompt:
 
