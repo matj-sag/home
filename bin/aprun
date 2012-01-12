@@ -1,4 +1,4 @@
-#!/bin/sh --
+#!/bin/bash --
 
 set -e
 
@@ -27,6 +27,20 @@ else
 	fi
 fi
 
+JVMTYPE=${JVMTYPE:-server}
+
+case `uname -m` in
+	i86pc|x86_64) 
+		JVMARCH=amd64
+	;;
+	i686)
+		JVMARCH=i386
+	;;
+	sun4u)
+		JVMARCH=sparc
+	;;
+esac
+
 BUILDTYPE=`"$WC/apama-src/get_buildtype"`
 IPATH=`"$WC/apama-src/get_ipath"`
 PATH="$WC/apama-src/bin_$BUILDTYPE:$PATH"
@@ -35,9 +49,12 @@ LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/icu/3.8.1/lib:$LD_LIBRARY_PATH"
 LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/ptmalloc/3-apama2/lib:$LD_LIBRARY_PATH"
 LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/inteltbb/tbb21_012oss/lib:$LD_LIBRARY_PATH"
 LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/sqlite/3.6.12/lib:$LD_LIBRARY_PATH"
+LD_LIBRARY_PATH="$JAVA_HOME/jre/lib/$JVMARCH/$JVMTYPE:$LD_LIBRARY_PATH"
+CLASSPATH="$WC/apama-test/etc:$WC/apama-src/obj_$BUILDTYPE/jmon_internal5.0.jar:$WC/apama-src/obj_$BUILDTYPE/correlator_jms5.0.jar:$WC/apama-src/obj_$BUILDTYPE/engine_client5.0.jar"
 
 export LD_LIBRARY_PATH
 export PATH
+export CLASSPATH
 
 "$@"
 

@@ -1,0 +1,15 @@
+#!/bin/sh --
+
+if [ -z "$APAMA_MACHTYPE" ]; then
+	echo "APAMA_MACHTYPE hasn't been set, cannot infer the 32bit version"
+	exit 1
+fi
+
+MACH32="$(echo "$APAMA_MACHTYPE" | sed 's/^amd64/ia32/')"
+
+echo "Running with APAMA_MACHTYPE=$MACH32 (instead of $APAMA_MACHTYPE)"
+
+export APAMA_MACHTYPE=$MACH32 
+
+"$@"
+
