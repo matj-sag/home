@@ -41,6 +41,7 @@ map <F1> :TlistToggle<cr>
 
 map <F8> :make -Rkj16 cpp java-core<CR>
 map <F7> :make -Rkj16 DEBUG=true cpp java-core<CR>
+map <F6> :make -Rkj16 NOOPT=true cpp java-core<CR>
 map <F9> :cp<cr>
 map <F10> :cn<cr>
 map sfl :set foldlevel=9999<CR>
