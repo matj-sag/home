@@ -2,7 +2,7 @@
 
 set -e
 
-MASTER=int/4.0.0.0
+MASTER=rel/5.0.0.x
 BRANCHCACHE="/tmp/.svnbranch-$USER-branchcache"
 
 branchtourl() {
@@ -23,6 +23,31 @@ branchexists() {
 usage() {
 	echo "Usage: svnbranch [--new <branch>|--delete <branch>|--merge <branch>|<branch>|--update|--rebase <my branch> <their branch>|--log [branch] [revision]]"
 }
+
+parselog() {
+	echo ""
+	echo "Changes:"
+	echo ""
+	while read line 
+	do
+		if [ "$line" = "------------------------------------------------------------------------" ]
+		then
+			if [ "$state" = "2" ]
+			then 
+				echo "#$rev: $text"
+			fi
+			export state="1"
+			text=""
+		elif [ "$state" = "1" ]
+		then 
+			rev=$(echo "$line" | sed 's/^r\([0-9]*\) |.*$/\1/')
+			export state="2"
+		else
+			text="$text $line"
+		fi
+	done
+}
+
 merge() {
 	MERGE="$1"
 	REV="$2"
@@ -31,8 +56,10 @@ merge() {
 	echo -n "Merging branch $MERGE onto $CURRENT (url = $URL)"
 	if [ -z "$REV" ]; then
 		simpleMerge -q "$URL"
+		svn log --stop-on-copy "$URL" | parselog >> commit.msg
 	else
 		simpleMerge -q "$URL@$REV"
+		svn log --stop-on-copy "$URL@$REV" | parselog >> commit.msg
 	fi
 	echo "."
 }
@@ -119,7 +146,8 @@ switch() {
 }
 
 update() {
-	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' > "$BRANCHCACHE"
+	svn ls "$ROOT/branches/rel" | sed 's,^,rel/,;s/.$//' > "$BRANCHCACHE"
+	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' >> "$BRANCHCACHE"
 	svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
 	svn ls "$ROOT/branches/releases" | sed 's,^,releases/,;s/.$//' >> "$BRANCHCACHE"
 	BRANCHES="`cat "$BRANCHCACHE"`"
@@ -164,8 +192,10 @@ fi
 ROOT="`svn info | sed -n '/^Repository Root:/s/[^:]*: //p'`"
 CURRENT="`svn info | sed -n "/^URL/s,URL: $ROOT/branches/\([^/]*/[^/]*\)/\{0\,1\}.*,\1,p"`"
 if ! [ -f "$BRANCHCACHE" ]; then
-	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' > "$BRANCHCACHE"
+	svn ls "$ROOT/branches/rel" | sed 's,^,rel/,;s/.$//' > "$BRANCHCACHE"
+	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' >> "$BRANCHCACHE"
 	svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
+	svn ls "$ROOT/branches/releases" | sed 's,^,releases/,;s/.$//' >> "$BRANCHCACHE"
 fi
 BRANCHES="`cat "$BRANCHCACHE"`"
 case $1 in 
@@ -224,6 +254,10 @@ case $1 in
 		REBASESRCBRANCH="`sed 's,@.*$,,' <<< $REBASESRC`"
 		if grep "^int" &>/dev/null <<< "$REBASE" ; then
 			echo "Looks like you are trying to rebase an integration branch. You probably don't want to do this!"
+			exit 1
+		fi
+		if grep "^rel" &>/dev/null <<< "$REBASE" ; then
+			echo "Looks like you are trying to rebase an release branch. You probably don't want to do this!"
 			exit 1
 		fi
 		if ! branchexists "$REBASE"; then
