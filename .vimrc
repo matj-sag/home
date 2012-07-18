@@ -13,7 +13,6 @@ let java_highlight_all=1
 let java_highlight_functions="style"
 let java_allow_cpp_keywords=1
 source ~/.vim-SuperTab
-source ~/.vim-ispell
 set foldmethod=indent
 set foldlevel=1
 set lbr
@@ -44,7 +43,9 @@ map <F7> :make -Rkj16 DEBUG=true cpp java-core<CR>
 map <F6> :make -Rkj16 NOOPT=true cpp java-core<CR>
 map <F9> :cp<cr>
 map <F10> :cn<cr>
+map <F11> :cw<cr>
 map sfl :set foldlevel=9999<CR>
+map <F2> :Ex<CR>
 
 
 
