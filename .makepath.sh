@@ -55,8 +55,10 @@ psepro_ld_library_path=$buildtime/pse-pro/$psepro_version/lib
 java_version=jdk1.6.0_18
 ant_version=apache-ant-1.7.0
 ANT_HOME=$buildtime_java/jakarta-ant/$ant_version
-python_version=2.6
+python_version=2.7.3
 PYTHON_HOME=$buildtime/python/$python_version
+subversion_version=1.7.5
+SVN_HOME=$buildtime/subversion/$subversion_version
 
 # Platform-specific setup
 platform=`uname -s`-`uname -r`-`uname -m`
@@ -66,7 +68,7 @@ Linux-*-x86_64)
 	java_arch=amd64
 	JAVA_HOME=$tools/java64/$java_version
 if [ -n "$cambridge" ]; then
-	PATH=$PATH:$tools/bin:/usr/rdl/linuxx86/bin:$HOME/git/linuxx86_64/bin
+	PATH=$HOME/bin/linux64:$PATH:$tools/bin:/usr/rdl/linuxx86/bin:$HOME/git/linuxx86_64/bin
 else
 	PATH=$PATH:$tools/bin:/usr/rdl/linuxx86/bin
 fi
@@ -75,7 +77,7 @@ Linux-*-i686)
 	tools=/tools/linuxx86
 	java_arch=i386
 if [ -n "$cambridge" ]; then
-	PATH=$PATH:$tools/bin:/usr/rdl/linuxx86/bin:$HOME/git/linuxx86/bin
+	PATH=$PATH:$tools/bin:/usr/rdl/linuxx86/bin:$HOME/git/linuxx86/bin:$HOME/bin/linux
 else
 	PATH=$PATH:$tools/bin:/usr/rdl/linuxx86/bin
 fi
@@ -86,7 +88,7 @@ SunOS-*-i86*)
 	PATH=/usr/dt/bin:$PATH
 	PATH=$PATH:$tools/gmake-3.79.1/bin
 if [ -n "$cambridge" ]; then
-	PATH=$PATH:$tools/bin:/usr/rdl/solarisx86/bin:$HOME/git/solarisx86_64/bin
+	PATH=$PATH:$tools/bin:/usr/rdl/solarisx86/bin:$HOME/git/solarisx86_64/bin:$HOME/bin/sunos64
 else
 	PATH=$PATH:$tools/bin:/usr/rdl/solarisx86/bin
 fi
@@ -97,7 +99,7 @@ SunOS-*-sun*)
 	PATH=/usr/dt/bin:$PATH
 	PATH=$PATH:$tools/gmake-3.79.1/bin
 if [ -n "$cambridge" ]; then
-	PATH=$PATH:$tools/bin:/usr/rdl/solaris/bin:$HOME/git/solaris/bin
+	PATH=$PATH:$tools/bin:/usr/rdl/solaris/bin:$HOME/git/solaris/bin:$HOME/bin/sparc
 else
 	PATH=$PATH:$tools/bin:/usr/rdl/solaris/bin
 fi
@@ -130,7 +132,7 @@ esac
 case $platform in
 Linux-*-x86_64 | Linux-*-i686 | SunOS-* | FreeBSD-[567]*)
 	java_ld_library_path=${JAVA_HOME:=$tools/java/$java_version}/jre/lib/$java_arch
-	PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$PYTHON_HOME/bin:$PATH
+	PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$PYTHON_HOME/bin:$SVN_HOME/bin:$PATH
 	PATH=$PATH:$APAMA_SRC/bin_$buildname
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH${LD_LIBRARY_PATH:+:}$APAMA_SRC/lib_$buildname
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${buildtime}/python/${python_version}/lib
