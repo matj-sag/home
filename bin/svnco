@@ -16,6 +16,8 @@ if [ -z "$BRANCH" ]; then
 	exit 1
 fi
 
+SVNVERSION=`svn --version | sed -n '1s/.*version 1\.\([0-9]*\)\..*/\1/p'`
+
 if [ -n "$FULL" ]; then
 	svn -q co svn://svn.apama.com/branches/$BRANCH
 else
@@ -41,13 +43,19 @@ else
 fi
 
 if [ -z "$FULL" ]; then
-	svn -q up -N $REVISION apama-src apama-test
-	FILES=$(cd apama-src; svn ls)
-	(
-		cd apama-src
-		svn -q up $REVISION $FILES
-		echo "apama-src checked out" 
-	) &
+	if (( ${SVNVERSION} >= 7 )); then
+		svn -q up $REVISION apama-src
+		svn -q up -N $REVISION apama-test
+
+	else
+		svn -q up -N $REVISION apama-src apama-test
+		FILES=$(cd apama-src; svn ls)
+		(
+			cd apama-src
+			svn -q up $REVISION $FILES
+			echo "apama-src checked out" 
+		) &
+	fi
 	(
 		cd apama-test 
 		svn -q up $REVISION -N system etc doc examples unit
