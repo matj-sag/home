@@ -81,7 +81,7 @@ function rc {
 if [ -n "$cambridge" ]; then
 	function vcs {
 		local LD_LIBRARY_PATH= 
-		if [ -d .svn ] && which svn 2>/dev/null | grep ^/ >/dev/null; then
+		if ([ -d .svn ] && which svn 2>/dev/null | grep ^/ >/dev/null) || (which svn 2>/dev/null | grep ^/ >/dev/null && svn info &>/dev/null); then
 			vcsprompt="(svn:`parse_svn`) "
 		else
 			vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"
