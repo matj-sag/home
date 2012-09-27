@@ -53,7 +53,7 @@ psepro_ld_library_path=$buildtime/pse-pro/$psepro_version/lib
 
 # Build paths to 3rd-party Java tools needed to build/run Apama
 java_version=jdk1.6.0_18
-ant_version=apache-ant-1.7.0
+ant_version=1.7.1
 ANT_HOME=$buildtime_java/jakarta-ant/$ant_version
 python_version=2.7.3
 PYTHON_HOME=$buildtime/python/$python_version
