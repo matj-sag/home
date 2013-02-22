@@ -90,6 +90,7 @@ rebase() {
 
 	echo -n "Merging forward $REBASE changes to $REBASESRC"
 	simpleMerge -q "$URL@$REV"
+	svn log --stop-on-copy "$URL@$REV" | parselog >> commit.msg
 	echo "."
 }
 create() {
@@ -184,7 +185,7 @@ log() {
 	done
 }
 
-if ! [ -d .svn ]; then
+if ! svn info &>/dev/null ; then
 	echo "Not in an svn repository"
 	exit 1
 fi
