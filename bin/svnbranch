@@ -21,7 +21,7 @@ branchexists() {
 }
 
 usage() {
-	echo "Usage: svnbranch [--new <branch>|--delete <branch>|--merge <branch>|<branch>|--update|--rebase <my branch> <their branch>|--log [branch] [revision]]"
+	echo "Usage: svnbranch [--new <branch>|--delete <branch>|--merge <branch>|<branch>|--update|--rebase <my branch> <their branch>|--log [branch] [revision]|--diff <branch>]"
 }
 
 parselog() {
@@ -63,6 +63,17 @@ merge() {
 	fi
 	echo "."
 }
+
+diffbranch() {
+	BRANCH="$1"
+	REV="$2"
+	URL="`branchtourl "$BRANCH"`"
+	START="`svn log --stop-on-copy "$URL" | grep -A1 -- ----------------------------------------------------------------------- | sed -n '/^r/s/r\([0-9]*\) .*/\1/p' | tail -n1`"
+	END="${REV:-HEAD}"
+	echo "$URL -r $START:$END"
+	svn diff -r "$START:$END" "$URL"
+}
+
 rebase() {
 	REBASE="$1"
 	REBASESRC="$2"
@@ -214,6 +225,29 @@ case $1 in
 	;;
 	"--update"|"-u")
 		update
+	;;
+	"--diff")
+		update
+		if [ -z "$2" ]; then
+			usage
+			exit 1
+		fi
+		DIFF="`sed 's,/*$,,' <<< $2`"
+		DIFFBRANCH="`sed 's,@.*$,,' <<< $DIFF`"
+		REV="`sed 's,^.*@,,' <<< $DIFF`"
+		if [ "$REV" == "$DIFFBRANCH" ]; then 
+			REV= 
+			if ! branchexists "$DIFFBRANCH"; then
+				echo "Branch $DIFF does not exist, cannot diff it"
+				exit 1
+			fi
+		else
+			if ! svn ls $ROOT/branches/$DIFFBRANCH@$REV &>/dev/null; then
+				echo "Branch $DIFFBRANCH does not exist at revision $REV, cannot merge it"
+				exit 1
+			fi			
+		fi
+		diffbranch "$DIFFBRANCH" "$REV"
 	;;
 	"-m"|"-M"|"--merge")
 		update
