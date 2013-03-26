@@ -60,6 +60,11 @@ PYTHON_HOME=$buildtime/python/$python_version
 subversion_version=1.7.5
 SVN_HOME=$buildtime/subversion/$subversion_version
 
+pysys_version=0.9.1
+pysysapama_version=1.3.3
+
+PYTHONPATH=$buildtime_java/pysys/$pysys_version/lib:$buildtime_java/pysys-apama/$pysysapama_version/lib
+
 # Platform-specific setup
 platform=`uname -s`-`uname -r`-`uname -m`
 case $platform in
@@ -132,7 +137,7 @@ esac
 case $platform in
 Linux-*-x86_64 | Linux-*-i686 | SunOS-* | FreeBSD-[567]*)
 	java_ld_library_path=${JAVA_HOME:=$tools/java/$java_version}/jre/lib/$java_arch
-	PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$PYTHON_HOME/bin:$SVN_HOME/bin:$PATH
+	PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$PYTHON_HOME/bin:$SVN_HOME/bin:$buildtime_java/pysys/$pysys_version/bin:$PATH
 	PATH=$PATH:$APAMA_SRC/bin_$buildname
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH${LD_LIBRARY_PATH:+:}$APAMA_SRC/lib_$buildname
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${buildtime}/python/${python_version}/lib
