@@ -1,8 +1,11 @@
 cambridge=
 if [ -x /sbin/ifconfig ]; then
-	if /sbin/ifconfig  -a | grep '10\.1\.2\.' &> /dev/null; then
+	ifcfout=`/sbin/ifconfig -a`
+	if echo $ifcfout | grep '10\.1\.2\.' &> /dev/null; then
 		cambridge=1
-	elif /sbin/ifconfig  -a | grep '10\.1\.128\.' &> /dev/null; then
+	elif echo $ifcfout | grep '10\.1\.128\.' &> /dev/null; then
+		cambridge=1
+	elif echo $ifcfout | grep '10\.1\.3\.' &> /dev/null; then
 		cambridge=1
 	fi
 fi
