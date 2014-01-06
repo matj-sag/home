@@ -85,7 +85,7 @@ if [ -n "$cambridge" ]; then
 			vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"
 		fi
 		if [ -z "$vcsprompt" ]; then
-			vcsprompt='(\A)'
+			vcsprompt='(\A) '
 		fi
 	}
 else
