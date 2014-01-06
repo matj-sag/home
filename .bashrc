@@ -42,6 +42,7 @@ if [ "$PS1" ]; then
      	 source .bashrc-$HOST
     fi
 
+	 HISTTIMEFORMAT="%h/%d - %H:%M:%S "
    
     # some more ls aliases
     alias ll='ls -l'

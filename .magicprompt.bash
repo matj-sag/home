@@ -1,14 +1,9 @@
-if [ "`uname`" == "SunOS" ] || [ "`uname`" == "FreeBSD" ]; then
-	if grep apama.com /etc/hosts &>/dev/null; then
+cambridge=
+if [ -x /sbin/ifconfig ]; then
+	if /sbin/ifconfig  -a | grep '10\.1\.2\.' &> /dev/null; then
 		cambridge=1
-	else
-		cambridge=
-	fi
-else
-	if [ "`hostname -d`" == "apama.com" ]; then
+	elif /sbin/ifconfig  -a | grep '10\.1\.128\.' &> /dev/null; then
 		cambridge=1
-	else
-		cambridge=
 	fi
 fi
 
@@ -86,6 +81,9 @@ if [ -n "$cambridge" ]; then
 		else
 			vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"
 		fi
+		if [ -z "$vcsprompt" ]; then
+			vcsprompt="(`date +%H:%m`)"
+		fi
 	}
 else
 	function vcs {
@@ -152,7 +150,7 @@ ${LIGHT_BLUE})-${GRAY}-\${fill}${LIGHT_BLUE}-(\
 $NO_COLOUR\${newPWD}\
 $LIGHT_BLUE)-$YELLOW-\
 \n\
- =${rccolor}${rc}$LIGHT_BLUE [$NO_COLOUR${prompttask}$LIGHT_BLUE]$GRAY ${vcsprompt}$LIGHT_BLUE"'\$'"\
+ =${rccolor}${rc}$LIGHT_BLUE [$NO_COLOUR${prompttask}$LIGHT_BLUE]$YELLOW "'\!'"$GRAY ${vcsprompt}$LIGHT_BLUE"'\$'"\
 $NO_COLOUR "
 }
 PROMPT_COMMAND='export rcinput=$?:$_;rc;title;prompt_command;vcs;ps1'
