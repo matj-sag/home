@@ -1,17 +1,20 @@
 cambridge=
+
+cambridgeranges='10\.1\. 10\.42\.(96|97|98|99|100|101|102|103|104|105|106|107|108|109|110|111)'
+
 if [ -x /sbin/ifconfig ]; then
-	ifcfout=`/sbin/ifconfig -a`
-	if echo $ifcfout | grep '10\.1\.2\.' &> /dev/null; then
-		cambridge=1
-	elif echo $ifcfout | grep '10\.1\.128\.' &> /dev/null; then
-		cambridge=1
-	elif echo $ifcfout | grep '10\.1\.3\.' &> /dev/null; then
-		cambridge=1
-	fi
+	ifcfout="`/sbin/ifconfig -a`"
+	for range in $cambridgeranges; do
+		if echo "$ifcfout" | egrep "inet[ a-z:]*$range" >/dev/null; then
+			cambridge=1
+			break
+		fi
+	done
 fi
 
 export GRAY="\[\033[1;30m\]"
 export LIGHT_GRAY="\[\033[0;37m\]"
+export CYAN="\[\033[1;36m\]"
 export WHITE="\[\033[1;37m\]"
 export GREEN="\[\033[1;32m\]"
 export RED="\[\033[1;31m\]"
@@ -60,7 +63,7 @@ parse_svn() {
 }
 
 function title {
-	if [ "$TERM" == "screen" ]; then
+	if [ "${TERM/screen/}" != "${TERM}" ]; then
 		# screen
 		echo -en "\033k[$prompttask] ${hostnam} ($rc): $last\033\\"
 	else
@@ -148,12 +151,12 @@ function prompt_command {
 
 function ps1 {
 PS1="$YELLOW-$LIGHT_BLUE-(\
-${usercolor}\${usernam}${hostcolour}@\${hostnam}${GRAY}:${uname}\
+${usercolor}\${usernam}${hostcolour}@\${hostnam}${GRAY}:${CYAN}${uname}\
 ${LIGHT_BLUE})-${GRAY}-\${fill}${LIGHT_BLUE}-(\
 $NO_COLOUR\${newPWD}\
 $LIGHT_BLUE)-$YELLOW-\
 \n\
- =${rccolor}${rc}$LIGHT_BLUE [$NO_COLOUR${prompttask}$LIGHT_BLUE]$YELLOW "'\!'"$GRAY ${vcsprompt}$LIGHT_BLUE"'\$'"\
+ =${rccolor}${rc}$LIGHT_BLUE [$NO_COLOUR${prompttask}$LIGHT_BLUE]$YELLOW "'\!'"$CYAN ${vcsprompt}$LIGHT_BLUE"'\$'"\
 $NO_COLOUR "
 }
 PROMPT_COMMAND='export rcinput=$?:$_;rc;title;prompt_command;vcs;ps1'
