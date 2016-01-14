@@ -67,17 +67,23 @@ merge() {
 diffbranch() {
 	BRANCH="$1"
 	REV="$2"
-	URL="`branchtourl "$BRANCH"`"
-	START="`svn log --stop-on-copy "$URL" | grep -A1 -- ----------------------------------------------------------------------- | sed -n '/^r/s/r\([0-9]*\) .*/\1/p' | tail -n1`"
 	END="${REV:-HEAD}"
+	URL="`branchtourl "$BRANCH"`"
+	START="`svn log --stop-on-copy "$URL@$END" | grep -A1 -- ----------------------------------------------------------------------- | sed -n '/^r/s/r\([0-9]*\) .*/\1/p' | tail -n1`"
 	echo "$URL -r $START:$END"
-	svn diff -r "$START:$END" "$URL"
+	svn diff -x -w -r "$START:$END" "$URL@$END"
 }
 
 rebase() {
 	REBASE="$1"
 	REBASESRC="$2"
 	URL="`svn info | sed -n '/^URL/s,URL: \(.*\)'"$CURRENT"'\(.*\),\1'"$REBASE"'\2,p'`"
+
+	echo $REBASE
+	echo $REBASESRC
+	echo $URL
+	echo $CURRENT
+	svn info | grep URL:
 
 	if [ "${ROOT:0:4}" = "svn:" ]; then
 		WRITABLE="`sed 's/svn:/http:/;s,$,/dev,' <<< "$ROOT"`"
@@ -161,6 +167,9 @@ update() {
 	svn ls "$ROOT/branches/rel" | sed 's,^,rel/,;s/.$//' > "$BRANCHCACHE"
 	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' >> "$BRANCHCACHE"
 	svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
+	svn ls "$ROOT/branches/users/bjs" | sed 's,^,users/bjs/,;s/.$//' >> "$BRANCHCACHE"
+	svn ls "$ROOT/branches/users/mjj29" | sed 's,^,users/mjj29/,;s/.$//' >> "$BRANCHCACHE"
+	svn ls "$ROOT/branches/users/mjj29/archive" | sed 's,^,users/mjj29/archive/,;s/.$//' >> "$BRANCHCACHE"
 	svn ls "$ROOT/branches/releases" | sed 's,^,releases/,;s/.$//' >> "$BRANCHCACHE"
 	BRANCHES="`cat "$BRANCHCACHE"`"
 }
@@ -202,12 +211,17 @@ if ! svn info &>/dev/null ; then
 fi
 
 ROOT="`svn info | sed -n '/^Repository Root:/s/[^:]*: //p'`"
-CURRENT="`svn info | sed -n "/^URL/s,URL: $ROOT/branches/\([^/]*/[^/]*\)/\{0\,1\}.*,\1,p"`"
+SVNURL="`svn info | sed -n '/^URL/s,URL: ,,p'`"
+if grep "$ROOT/branches/users/mjj29/archive" <<< $SVNURL &>/dev/null; then
+	CURRENT="`echo $SVNURL | sed "s,$ROOT/branches/\([^/]*/[^/]*/[^/]*/[^/]*\)/\{0\,1\}.*,\1,"`"
+elif grep "$ROOT/branches/users" <<< $SVNURL &>/dev/null; then
+	CURRENT="`echo $SVNURL | sed "s,$ROOT/branches/\([^/]*/[^/]*/[^/]*\)/\{0\,1\}.*,\1,"`"
+else
+	CURRENT="`echo $SVNURL | sed "s,$ROOT/branches/\([^/]*/[^/]*\)/\{0\,1\}.*,\1,"`"
+fi
+
 if ! [ -f "$BRANCHCACHE" ]; then
-	svn ls "$ROOT/branches/rel" | sed 's,^,rel/,;s/.$//' > "$BRANCHCACHE"
-	svn ls "$ROOT/branches/dev" | sed 's,^,dev/,;s/.$//' >> "$BRANCHCACHE"
-	svn ls "$ROOT/branches/int" | sed 's,^,int/,;s/.$//' >> "$BRANCHCACHE"
-	svn ls "$ROOT/branches/releases" | sed 's,^,releases/,;s/.$//' >> "$BRANCHCACHE"
+	update
 fi
 BRANCHES="`cat "$BRANCHCACHE"`"
 case $1 in 
@@ -338,8 +352,8 @@ case $1 in
 			echo "Branch $BASIS does not exist, cannot copy from it"
 			exit 1
 		fi
-		if [ "${NEW:0:4}" != "dev/" ]; then
-			echo "Branch not under dev/; cannot create"
+		if [ "${NEW:0:4}" != "dev/" ] && [ "${NEW:0:6}" != "users/" ]; then
+			echo "Branch not under dev/ or users/; cannot create"
 			exit 1
 		fi
 		
