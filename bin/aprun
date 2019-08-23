@@ -3,7 +3,7 @@
 set -e
 
 if [ -z "$1" ] || [ "--help" = "$1" ]; then
-	echo "Usage: aprun [-w <working copy>] <command> [args...]"
+	echo "Usage: aprun [-w <working copy>] [-m <mode>] <command> [args...]"
 	echo "Runs a command (like a correlator) with the correct PATH and LD_LIBRARY_PATH"
 	echo "for the current (or specified) working copy"
 	exit 1
@@ -26,35 +26,19 @@ else
 		exit 1
 	fi
 fi
+if [ "-m" = "$1" ]; then
+	MODE=$2
+	shift
+	shift
+else
+	MODE=release
+fi
 
-JVMTYPE=${JVMTYPE:-server}
+eval `$WC/apama-src/getplatform.py | sed 's/ //g;s/^/export /'`
 
-case `uname -m` in
-	i86pc|x86_64) 
-		JVMARCH=amd64
-	;;
-	i686)
-		JVMARCH=i386
-	;;
-	sun4u)
-		JVMARCH=sparc
-	;;
-esac
+APAMA_HOME="$WC/apama-src/output-$APAMA_BUILDTYPE-$MODE/SoftwareAG/Apama"
 
-BUILDTYPE=`"$WC/apama-src/get_buildtype"`
-IPATH=`"$WC/apama-src/get_ipath"`
-PATH="$WC/apama-src/bin_$BUILDTYPE:$PATH"
-LD_LIBRARY_PATH="$WC/apama-src/lib_$BUILDTYPE:$LD_LIBRARY_PATH"
-LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/icu/3.8.1/lib:$LD_LIBRARY_PATH"
-LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/ptmalloc/3-apama2/lib:$LD_LIBRARY_PATH"
-LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/inteltbb/tbb21_012oss/lib:$LD_LIBRARY_PATH"
-LD_LIBRARY_PATH="$WC/apama-lib2/$IPATH/sqlite/3.6.12/lib:$LD_LIBRARY_PATH"
-LD_LIBRARY_PATH="$JAVA_HOME/jre/lib/$JVMARCH/$JVMTYPE:$LD_LIBRARY_PATH"
-CLASSPATH="$WC/apama-test/etc:$WC/apama-src/obj_$BUILDTYPE/jmon_internal5.0.jar:$WC/apama-src/obj_$BUILDTYPE/correlator_jms5.0.jar:$WC/apama-src/obj_$BUILDTYPE/engine_client5.0.jar"
+export APAMA_HOME
 
-export LD_LIBRARY_PATH
-export PATH
-export CLASSPATH
-
-"$@"
+$APAMA_HOME/bin/apama_env "$@"
 

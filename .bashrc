@@ -61,6 +61,21 @@ if [ "$PS1" ]; then
 	 alias cd='pushd $PWD;popd +20 -n&>/dev/null || true;cd'
 	 alias mine='psa | grep $USER'
 	 alias svnls='svn ls'
+	 alias tt='/tools/apama-util/scripts/testing/testtriage.py'
+
+	function addup()
+	{
+		cat | sed '1s/^/8k /;2,$s/$/ +/;$s/$/ p/' | dc
+	}
+
+	function xpy()
+	{
+		if [ -f /var/tmp/mjj29/xpybuild-git/xpybuild.py ]; then
+			/var/tmp/mjj29/xpybuild-git/xpybuild.py "$@"
+		else
+			./xpybuild.py "$@"
+		fi
+	}
 
 	
 	function svncd()
@@ -100,21 +115,21 @@ if [ "$PS1" ]; then
 		if [ "`uname`" != "SunOS" ]; then
 			if [ -z "$1" ]; then
 				set -x
-				find $paths -not -path '*/.svn/*' -and -type f -print0 | xargs -0 grep -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -print0 | xargs -0 grep -i "$pat"
 				set +x
 			else 
 				set -x
-				find $paths -not -path '*/.svn/*' -and -type f -and "$@" -print0 | xargs -0 grep -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and "$@" -print0 | xargs -0 grep -i "$pat"
 				set +x
 			fi
 		else
 			if [ -z "$1" ]; then
 				set -x
-				find $paths -not -path '*/.svn/*' -and -type f | xargs grep -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f | xargs grep -i "$pat"
 				set +x
 			else 
 				set -x
-				find $paths -not -path '*/.svn/*' -and -type f -and "$@" | xargs grep -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and "$@" | xargs grep -i "$pat"
 				set +x
 			fi
 		fi
@@ -187,10 +202,7 @@ if [ "$PS1" ]; then
 if [ "`uname`" = "SunOS" ]; then
 	export PAGER=more
 else
-	if which gvim 2>/dev/null | grep ^/ >/dev/null && [ -n "$DISPLAY" ]; then
-		 export EDITOR=gvim
-		 export PAGER="sh -c 'sed s/.//g | gview -'"
-	elif which vim 2>/dev/null | grep ^/ >/dev/null ; then
+	if which vim 2>/dev/null | grep ^/ >/dev/null ; then
 		 export EDITOR=vim
 		 export PAGER="sh -c 'sed s/.//g | view -'"
 	elif which less 2>/dev/null | grep ^/ >/dev/null ; then
@@ -204,6 +216,9 @@ fi
 
 # apama stuff
 export AP_ASCII_COLOURS=true
+export AP_IGNORE_MISSING_TEST_DIRS=true
+export APB_SKIP_VERSION=true
+export XPYBUILD_WORKERS_PER_CPU=0.75
 if [ "$TERM" == "rxvt-unicode" ]; then export TERM=rxvt; fi
 fi
     # env vars

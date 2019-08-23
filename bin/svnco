@@ -2,31 +2,52 @@
 
 FULL=
 
-if [ "$1" == "--full" ]; then
-	FULL=true
-	shift
+if [ "$1" == "--help" ]; then
+	echo "Usage: svnco [--innovation] [--full] [--with-qtp] <branch>[@<revision>] [<server>]"
+	exit 1
 fi
 
-if [ "$1" == "--with-qtp" ]; then
-	QTP=true
-	shift
-fi
+PREFIX="branches"
+
+while true; do
+	if [ "$1" == "--full" ]; then
+		FULL=true
+		shift
+		continue
+	fi
+	if [ "$1" == "--innovation" ]; then
+		PREFIX="users/innovation"
+		shift
+		continue
+	fi	
+	if [ "$1" == "--with-qtp" ]; then
+		QTP=true
+		shift
+		continue
+	fi
+	break
+done
 
 BRANCH="$1"
+SERVER="$2"
 
 set -e
 
 if [ -z "$BRANCH" ]; then
-	echo "Usage: svnco [--full] [--with-qtp] <branch>[@<revision>]"
+	echo "Usage: svnco [--full] [--with-qtp] <branch>[@<revision>] [server]"
 	exit 1
+fi
+
+if [ -z "$SERVER" ]; then
+	SERVER=svn
 fi
 
 SVNVERSION=`svn --version | sed -n '1s/.*version 1\.\([0-9]*\)\..*/\1/p'`
 
 if [ -n "$QTP" ]; then
-	svn -q co svn://svn.apama.com/branches/$BRANCH
+	svn -q co http://$SERVER.apama.com/dev/$PREFIX/$BRANCH
 else
-	svn -q co -N svn://svn.apama.com/branches/$BRANCH
+	svn -q co -N http://$SERVER.apama.com/dev/$PREFIX/$BRANCH
 fi
 
 REALBRANCH="` sed 's/@.*$//' <<< $BRANCH`"
@@ -39,42 +60,57 @@ fi
 
 cd `basename $REALBRANCH`
 
-if [ -e apama-lib2 ]; then
-	true
-elif [ -e /var/tmp/apama-lib2 ]; then
-		ln -sf /var/tmp/apama-lib2 .
-else
-		ln -sf /shared/apamabld/apama-lib2 .
-fi
+for LIB in apama-lib2 apama-lib3 apama-lib4; do 
+	if [ -e $LIB ]; then
+		true
+	elif [ -e /apama_build/shared/$LIB ]; then
+			ln -sf /apama_build/shared/$LIB .
+	elif [ -e /shared/apamabld/$LIB ]; then
+			ln -sf /shared/apamabld/$LIB .
+	elif [ -e /shared/$LIB ]; then
+			ln -sf /shared/$LIB .
+	elif [ -e /$LIB ]; then
+			ln -sf /$LIB .
+	elif [ -e /var/tmp/$LIB ]; then
+			ln -sf /var/tmp/$LIB .
+	fi
+done
 
 if [ -z "$QTP" ]; then
 	if [ -n "$FULL" ]; then
-		svn -q up $REVISION apama-src apama-test apama-build apama-doc apama-install apama-samples
+		svn -q up $REVISION apama-src apama-test apama-build apama-doc apama-install apama-samples xpybuild
 	else
 		if (( ${SVNVERSION} >= 7 )); then
+			svn -q up $REVISION apama-build xpybuild
+			echo "apama-build and xpybuild checked out"
 			svn -q up $REVISION apama-src
+			echo "apama-src checked out"
+			(svn -q up xpybuild && echo "xpybuild checked out") || true
 			svn -q up -N $REVISION apama-test
 
 		else
-			svn -q up -N $REVISION apama-src apama-test
-			FILES=$(cd apama-src; svn ls)
-			(
-				cd apama-src
-				svn -q up $REVISION $FILES
-				echo "apama-src checked out" 
-			) &
+			svn -q up -N $REVISION apama-src apama-build apama-test xpybuild
+			for dir in apama-src apama-build xpybuild; do
+				FILES=$(cd $dir; svn ls)
+				(
+					cd $dir
+					svn -q up $REVISION $FILES
+					echo "$dir checked out"
+				) &
+			done
 		fi
 		(
 			cd apama-test 
-			svn -q up $REVISION -N system etc doc examples unit
-			svn -q up $REVISION licences python_scripts tools utils
+			svn -q up $REVISION -N system doc examples unit
+			svn -q up $REVISION licences python_scripts tools utils etc
 			cd unit
 			svn -q up $REVISION -N correlator-core  correlator-hypertree correlator-jmon cxxtest dsm junit lib samples studio
 			svn -q up $REVISION cpp-common dotNet-common iaf java-common osee remote-executables sender-merger tools
+			cd studio
+			svn -q up $REVISION framework
 			echo "apama-test partially checked out"
 		) &
 		wait
 	fi
 fi
-svn switch --relocate svn://svn.apama.com/branches/$REALBRANCH http://svn.apama.com/dev/branches/$REALBRANCH
-echo "All done and switch to R/W repository"
+echo "All done"

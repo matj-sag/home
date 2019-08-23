@@ -25,8 +25,6 @@ set background=dark
 autocmd FileType make set noet
 set shm=AITt
 set noequalalways
-nmap <F4> :call OpenFileFromClipboard()
-imap <F4> <C-o>:call OpenFileFromClipboard()
 
 if $TERM=='screen'
    exe "set title titlestring=vim:%f"
@@ -38,14 +36,13 @@ let Tlist_WinWidth = 50
 map <F1> :TlistToggle<cr>
 "map <F9> :!/usr/bin/ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 
-map <F8> :make -Rkj16 cpp java-core<CR>
-map <F7> :make -Rkj16 DEBUG=true cpp java-core<CR>
-map <F6> :make -Rkj16 NOOPT=true cpp java-core<CR>
-map <F9> :cp<cr>
-map <F10> :cn<cr>
-map <F11> :cw<cr>
+map <F8> :cp<cr>
+map <F9> :cn<cr>
+map <F7> :cw<cr>
 map sfl :set foldlevel=9999<CR>
 map <F2> :Ex<CR>
+map <F3> :bp<CR>
+map <F4> :bn<CR>
 
 
 

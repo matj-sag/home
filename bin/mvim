@@ -3,6 +3,9 @@
 for i in "$@"; do
    FILE="`echo $i | awk -F: '{print $1}'`"
    LINE="`echo $i | awk -F: '{print $2}'`"
+	if [ ! -f "$FILE" ]; then
+		FILE="`find -name "$(basename "$FILE")"`"
+	fi
    if [ -n "$LINE" ]; then
       vim "$FILE" +:$LINE
    else

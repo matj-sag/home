@@ -2,7 +2,6 @@
 
 set -e
 
-MASTER=rel/5.0.0.x
 BRANCHCACHE="/tmp/.svnbranch-$USER-branchcache"
 
 branchtourl() {
@@ -63,6 +62,22 @@ merge() {
 	fi
 	echo "."
 }
+
+diffdailybranch() {
+	BRANCH="$1"
+	DAYS="$2"
+	REV="$3"
+	END="${REV:-HEAD}"
+	URL="`branchtourl "$BRANCH"`"
+	START="$(svn log --stop-on-copy $URL@$END | grep $(date -d @$((`date +%s` - 86400 * $DAYS)) +%Y-%m-%d) | tail -n1 | cut -d' ' -f1 | sed 's/^r//')"
+	if [ "$START" == "" ]; then
+		echo "No changes on $(date -d @$((`date +%s` - 86400 * $DAYS)) +%Y-%m-%d)"
+	else 
+		START=$(($START - 1))
+		svn diff --ignore-properties -x -w "-r$START:$END" "$URL@$END"
+	fi
+}
+
 
 diffbranch() {
 	BRANCH="$1"
@@ -195,7 +210,7 @@ log() {
 	URL="$(branchtourl "$branch")"
 	while true; do
 		set +e
-		OUTPUT=$(svn log --stop-on-copy "$URL@$revision" 2>/dev/null)
+		OUTPUT=$(svn log -v --stop-on-copy "$URL@$revision" 2>/dev/null)
 		RV=$?
 		set -e
 		if [ "0" != "$RV" ]; then break; fi
@@ -239,6 +254,35 @@ case $1 in
 	;;
 	"--update"|"-u")
 		update
+	;;
+	"--daily")
+		update
+		DAYS=1
+		if [ "$2" == "-n" ]; then
+			DAYS="$3"
+			shift
+			shift
+		fi
+		if [ -z "$2" ]; then
+			usage
+			exit 1
+		fi
+		DIFF="`sed 's,/*$,,' <<< $2`"
+		DIFFBRANCH="`sed 's,@.*$,,' <<< $DIFF`"
+		REV="`sed 's,^.*@,,' <<< $DIFF`"
+		if [ "$REV" == "$DIFFBRANCH" ]; then 
+			REV= 
+			if ! branchexists "$DIFFBRANCH"; then
+				echo "Branch $DIFF does not exist, cannot diff it"
+				exit 1
+			fi
+		else
+			if ! svn ls $ROOT/branches/$DIFFBRANCH@$REV &>/dev/null; then
+				echo "Branch $DIFFBRANCH does not exist at revision $REV, cannot merge it"
+				exit 1
+			fi			
+		fi
+		diffdailybranch "$DIFFBRANCH" "$DAYS" "$REV"
 	;;
 	"--diff")
 		update
@@ -374,9 +418,8 @@ case $1 in
 			if [ "$i" == "$DEL" ]; then
 				# delete a branch
 				delete "$DEL"
-				# switch back to $MASTER
 				if [ "$CURRENT" == "$DEL" ]; then
-					switch "$MASTER"
+					echo "Current branch has been deleted, suggest you switch to a more recent branch"
 				fi
 				update
 				exit 0

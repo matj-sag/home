@@ -1,11 +1,16 @@
 #!/bin/sh 
 #
-# $Copyright(c) 2008 Progress Software Corporation (PSC). All rights reserved.$
+# $Copyright(c) 2008, 2013 Progress Software Corporation (PSC). All rights reserved.$
+# $Copyright (c) 2013 Software AG, Darmstadt, Germany and/or Software AG USA Inc., Reston, VA, USA, and/or its subsidiaries and/or its affiliates and/or their licensors.$
+# Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in your License Agreement with Software AG
 #
 # Prints the path under apama-lib2 that binaries for this platform use.
+# Consider calling getplatform.py directly instead of using this
 #
-# $Id:$
-
-. `dirname $0`/get_platform.sh
-
-get_install_path
+# $Id: 0$
+if [ -n "$PYTHONHOME" ] ; then 
+	PYTHON="$PYTHONHOME/bin/python"
+else 
+	PYTHON=python
+fi
+"$PYTHON" `dirname $0`/getplatform.py get_ipath

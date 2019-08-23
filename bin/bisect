@@ -62,37 +62,6 @@ if [ -n "$TEST" ]; then
 	TESTPATH="`dirname "$TESTPATH"`"
 fi
 
-width=
-case `hostname` in
-	hoodie.apama.com)
-		width="-j6"
-		;;
-	conman.apama.com)
-		width="-j12"
-		;;
-	asbo.apama.com)
-		width="-j6"
-		;;
-	badboy.apama.com)
-		width="-j4"
-		;;
-	vega)
-		width="-j4"
-		;;
-	polaris)
-		width="-j4"
-		;;
-	hale)
-		APAMA_MACHTYPE=sparc64-sun-solaris10-studio12
-		export APAMA_MACHTYPE
-		;;
-	bopp)
-		APAMA_MACHTYPE=sparc64-sun-solaris10-studio12
-		export APAMA_MACHTYPE
-		;;
-
-esac
-
 echo -n "Bisecting $WCPATH over range "
 
 if (( $badrev > $goodrev )); then
@@ -136,9 +105,14 @@ while (( $top > $bottom )); do
 	echo -n "Trying r$trial ... "
 
 	svn up -r$trial apama-src &> $LOGPATH/$trial-up.log
-	nice -1 gmake DEBUG=true NOJAVA=true $width -C apama-src > $LOGPATH/$trial-build.log 2>&1 || (
-		nice -1 gmake DEBUG=true $width -C apama-src clean &> $LOGPATH/$trial-build.log
-		nice -1 gmake DEBUG=true $width -C apama-src >> $LOGPATH/$trial-build.log 2>&1
+	( 
+		nice -1 ./apama-src/xpybuild.py -J -f apama-src/root.xpybuild.py -Fprogress -L $LOGPATH/build-$trial.log &&
+		nice -1 ./apama-test/xpybuild.py -J -f apama-test/root.xpybuild.py -Fprogress -L $LOGPATH/build-$trial.log
+	) || (
+		rm -rf ./apama-src/output*
+		rm -rf ./apama-test/tools/output*
+		nice -1 ./apama-src/xpybuild.py -J -f apama-src/root.xpybuild.py -Fprogress -L $LOGPATH/build-$trial.log
+		nice -1 ./apama-test/xpybuild.py -J -f apama-test/root.xpybuild.py -Fprogress -L $LOGPATH/build-$trial.log
 	)
 	if [ -n "$TEST" ]; then
 		pushd "$TESTPATH" &>/dev/null

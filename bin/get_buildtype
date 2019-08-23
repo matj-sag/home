@@ -1,13 +1,17 @@
 #!/bin/sh
 #
-# $Copyright(c) 2005-2008 Progress Software Corporation (PSC). All rights reserved.$
+# $Copyright(c) 2005-2013 Progress Software Corporation (PSC). All rights reserved.$
+# $Copyright (c) 2013 Software AG, Darmstadt, Germany and/or Software AG USA Inc., Reston, VA, USA, and/or its subsidiaries and/or its affiliates and/or their licensors.$
+# Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in your License Agreement with Software AG
 #
-# Echo the value of APAMA_BUILDTYPE as reported by the get_platform.sh
-# script to stdout.
+# Echo the value of APAMA_BUILDTYPE as reported by getplatform.py
+# to stdout. Consider using getplatform.py directly instead
 #
-# $Id: get_buildtype 95013 2008-12-01 15:20:29Z majohnso $
+# $Id: get_buildtype 260893 2015-08-05 06:28:37Z asd $
 #
-
-. `dirname $0`/get_platform.sh
-
-echo $APAMA_BUILDTYPE
+if [ -n "$PYTHONHOME" ] ; then 
+	PYTHON="$PYTHONHOME/bin/python"
+else 
+	PYTHON=python
+fi
+"$PYTHON" `dirname $0`/getplatform.py echo APAMA_BUILDTYPE

@@ -31,9 +31,9 @@ elif [ -x $HOME/bin/get_libtype ]; then
 fi
 
 if [ -n "$cambridge" ]; then
-	apama_lib=/shared/apamabld/apama-lib2
+	apama_lib=/shared/apama-lib3
 else
-	apama_lib=/apama_build/shared/apama-lib2
+	apama_lib=/apama_build/shared/apama-lib3
 fi
 
 buildtime=$apama_lib/$ipath
@@ -52,18 +52,18 @@ libxml2_ld_library_path=$buildtime/libxml2/$libxml2_version/lib
 psepro_ld_library_path=$buildtime/pse-pro/$psepro_version/lib
 
 # Build paths to 3rd-party Java tools needed to build/run Apama
-java_version=jdk1.6.0_18
+java_version=jdk1.7.0_25
 ant_version=1.7.1
 ANT_HOME=$buildtime_java/jakarta-ant/$ant_version
-python_version=2.7.3
+python_version=2.7.13
 PYTHON_HOME=$buildtime/python/$python_version
-subversion_version=1.7.5
-SVN_HOME=$buildtime/subversion/$subversion_version
+subversion_version=1.9.3
+SVN_HOME=$buildtime/../all/subversion/$subversion_version
 
 pysys_version=0.9.1
 pysysapama_version=1.3.3
 
-PYTHONPATH=$buildtime_java/pysys/$pysys_version/lib:$buildtime_java/pysys-apama/$pysysapama_version/lib
+PYTHONPATH=$buildtime_java/pysys/$pysys_version/lib/python2.7/site-packages:$buildtime_java/pysys-apama/$pysysapama_version/lib/python2.7/site-packages
 
 # Platform-specific setup
 platform=`uname -s`-`uname -r`-`uname -m`
@@ -143,7 +143,6 @@ Linux-*-x86_64 | Linux-*-i686 | SunOS-* | FreeBSD-[567]*)
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${buildtime}/python/${python_version}/lib
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$tao_ld_library_path
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$icu_ld_library_path
-	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$libxml2_ld_library_path
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$psepro_ld_library_path
 	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$java_ld_library_path
 	ulimit -c unlimited
@@ -160,7 +159,7 @@ fi
 
 if [ -n "$cambridge" ]; then
 	PATH="$HOME/bin:$PATH"
-elif [ "$USER" == "majohnso" ]; then
+elif [ "$USER" == "matj" ]; then
 	mkdir -p /scratch/mjj29
 	if [ -d /scratch/mjj29/bin ]; then
 		svn up -q /scratch/mjj29/bin

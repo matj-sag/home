@@ -1,15 +1,27 @@
 #!/usr/bin/env bash
 
-if [ -n "$1" ]; then
-	echo "Usage: svncopyright"
+if [ -n "$1" ] && [ "$1" != "--branch" ]; then
+	echo "Usage: svncopyright [--branch]"
 	echo "Lists svn modified/added files with an out of date copyright header"
+	exit 0
 fi
 
-for i in $(svn st -q | sed 's/.......//'); do
-	if ! head "$i" | grep Copyright &>/dev/null; then
-		echo "No copyright: $i"
-	elif ! head $i | grep Copyright | grep $(date +%Y) &>/dev/null; then
-		echo "Old copyright: $i"
+if [ "$1" == "--branch" ]; then
+	ROOT="`svn info | grep '^Repository Root:' | cut -d: -f2- | sed 's/^ *//'`"
+	URL="`svn info | grep '^URL:' | cut -d: -f2- | sed 's/^ *//'`"
+	FILEROOT="`echo $URL | sed "s%$ROOT%%"`"
+	FILES="`svn log --stop-on-copy -v | grep '^ ' | sed -n "s%.*$FILEROOT/%%p" | sort -u`"
+else
+	FILES="`svn st -q | sed 's/.......//'`"
+fi
+
+for i in $FILES; do
+	if [ ! -d $i ] && [ -e $i ]; then
+		if ! head "$i" | grep Copyright &>/dev/null; then
+			echo "No copyright: $i"
+		elif ! head $i | grep Copyright | grep $(date +%Y) &>/dev/null; then
+			echo "Old copyright: $i"
+		fi
 	fi
 done
 

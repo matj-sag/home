@@ -81,9 +81,9 @@ else:
 first, last = getRevisionRange(mergeFromURL)
 
 if quiet:
-	mergeCmd = 'svn merge -q -r%d:%d %s %s' % (first, last, mergeFromURL, workingCopy)
+	mergeCmd = 'svn merge --ignore-ancestry -q -r%d:%d %s %s' % (first, last, mergeFromURL, workingCopy)
 else:
-	mergeCmd = 'svn merge -r%d:%d %s %s' % (first, last, mergeFromURL, workingCopy)
+	mergeCmd = 'svn merge --ignore-ancestry -r%d:%d %s %s' % (first, last, mergeFromURL, workingCopy)
 
 if not quiet:
 	print mergeCmd

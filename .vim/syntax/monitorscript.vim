@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:	MonitorScript
 " Maintainer:	Mark Raynes (mraynes@progress.com)
-" Last Change:	30/07/2007
+" Last Change:	28/07/2017 @cat
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -16,11 +16,11 @@ syn case ignore
 " Keywords:
 syn keyword msExternal  	package
 syn keyword msBoolean  		false true
-syn keyword msStatement		as on all persistent action wait return monitor event import returns route emit to wildcard call spawn die enqueue print log at in within unmatched completed currentTime from select in using retain batch within partition by join in where group having istream rstream into generates aggregate every with unique largest smallest bounded unbounded constant
-syn keyword msOpertaor  	new not and xor equals
-syn keyword msRepeat		while for do break continue
-syn keyword msConditional	if then else
-syn keyword msType		integer string boolean float sequence dictionary stream
+syn keyword msStatement		as on all action wait return monitor event import returns route emit to wildcard spawn die send enqueue print log at in within unmatched completed currentTime from select in using retain within partition by join in where group having rstream aggregate every with unique largest smallest bounded unbounded constant try catch static throw
+syn keyword msOperator  	new not and xor equals or
+syn keyword msRepeat		while for break continue
+syn keyword msConditional	if then else ifpresent switch case default
+syn keyword msType		integer string boolean float location sequence dictionary stream context chunk listener decimal optional any persistent
 
 " Strings and characters:
 syn region msString		start=+"+  skip=+\\\\\|\\"+  end=+"+
@@ -33,7 +33,7 @@ syn match msNumber		"-\=\<\d*\.\=[0-9_]\>"
 syn match msCommentCharacter contained "'\\[^']\{1,6\}'"
 syn match msCommentCharacter contained "'\\''"
 syn match msCommentCharacter contained "'[^\\]'"
-syn region msComment start="/\*"  end="\*/" contains=msCommentCharacter,msNumber
+syn region msComment start="/\*" skip="$" end="\*/" contains=msCommentCharacter,msNumber
 syn region msComment start="//" skip="\\$" end="$" contains=msCommentCharacter,msNumber
 
 " Define the default highlighting.
@@ -50,7 +50,7 @@ if version >= 508 || !exists("did_ms_syn_inits")
   HiLink msExternal 	Include
   HiLink msBoolean 	Boolean
   HiLink msStatement 	Statement
-  HiLink msOpertaor 	Operator
+  HiLink msOperator 	Operator
   HiLink msRepeat 	Repeat
   HiLink msConditional 	Conditional
   HiLink msType 	Type

@@ -1,3 +1,5 @@
+PROMPTMODE=3 #0=basic, 1=standard, 2=coloured, 3=multi-line
+
 cambridge=
 
 cambridgeranges='10\.1\. 10\.42\.(96|97|98|99|100|101|102|103|104|105|106|107|108|109|110|111)'
@@ -48,6 +50,7 @@ fi
 
 function t()
 {
+	unset svntask
 	export task=$1
 }
 
@@ -83,7 +86,11 @@ if [ -n "$cambridge" ]; then
 	function vcs {
 		local LD_LIBRARY_PATH= 
 		if ([ -d .svn ] && which svn 2>/dev/null | grep ^/ >/dev/null) || (which svn 2>/dev/null | grep ^/ >/dev/null && svn info &>/dev/null); then
-			vcsprompt="(svn:`parse_svn`) "
+			svndata=`parse_svn`
+			vcsprompt="(svn:$svndata) "
+			if egrep '/apama-(src|test|build)($|/)' <<< $PWD &> /dev/null; then
+				export svntask="`sed 's,.*/\(.*\)@.*,\1,' <<< $svndata`-`sed 's,.*/[^/]*/apama-\([^/]*\).*,\1,' <<< $PWD`"
+			fi
 		else
 			vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"
 		fi
@@ -137,6 +144,8 @@ function prompt_command {
 	
 	if [ -n "$task" ]; then
 		prompttask="$task"
+	elif [ -n "$svntask" ]; then
+		prompttask="$svntask"
 	else
 		prompttask="`basename "$PWD"`"
 	fi
@@ -148,6 +157,34 @@ function prompt_command {
 	fi
 
 }
+
+unset ps1
+unset PS1
+unset PROMPT_COMMAND
+
+# basic
+if [[ "$PROMPTMODE" == "0" ]]; then
+PS1="\u@\h:\w\$ "
+
+# normal
+elif [[ "$PROMPTMODE" == "1" ]]; then
+
+function ps1 {
+PS1="=${rc} [${prompttask}] \u@\h:\w\$ "
+}
+PROMPT_COMMAND='export rcinput=$?:$_;rc;title;prompt_command;vcs;ps1'
+
+# single-line color
+elif [[ "$PROMPTMODE" == "2" ]]; then
+
+function ps1 {
+PS1="$YELLOW=${rcolor}${rc} $LIGHT_BLUE[$NO_COLOUR${prompttask}$LIGHT_BLUE] \
+${usercolor}\${usernam}${hostcolour}@\${hostnam}${GRAY}:\\w$LIGHT_BLUE\\\$$NO_COLOUR "
+}
+PROMPT_COMMAND='export rcinput=$?:$_;rc;title;prompt_command;vcs;ps1'
+
+# multi-line  (PROMPTMODE=3)
+else
 
 function ps1 {
 PS1="$YELLOW-$LIGHT_BLUE-(\
@@ -161,3 +198,4 @@ $NO_COLOUR "
 }
 PROMPT_COMMAND='export rcinput=$?:$_;rc;title;prompt_command;vcs;ps1'
 
+fi
