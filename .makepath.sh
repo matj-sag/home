@@ -157,21 +157,7 @@ if [ -n "$cambridge" ]; then
 fi
 	
 
-if [ -n "$cambridge" ]; then
-	PATH="$HOME/bin:$PATH"
-elif [ "$USER" == "matj" ]; then
-	mkdir -p /scratch/mjj29
-	if [ -d /scratch/mjj29/bin ]; then
-		svn up -q /scratch/mjj29/bin
-	else
-		svn co -q http://svn.apama.com/dev/users/mjj29/home/bin /scratch/mjj29/bin
-	fi
-	PATH="/scratch/mjj29/bin:$PATH"
-else
-	mkdir -p "/scratch/$USER"
-	rsync -qaz --exclude .svn "$HOME/bin/" "/scratch/$USER/bin"
-	PATH="/scratch/$USER/bin:$PATH"
-fi
+PATH="$HOME/bin:$PATH"
 BASH_PROFILE="`date`"
 
 # Clean up shell environment a bit
