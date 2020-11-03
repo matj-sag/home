@@ -154,13 +154,13 @@ if [ "$PS1" ]; then
 
     # PATH
     if [[ "`uname`" = "IRIX" ]];
-    then 
+    then
        export PATH=/usr/freeware/bin:$PATH:$HOME/bin:/usr/bin/jdk:$HOME/Docs/programming/c/bin:/usr/etc/
     fi
 
     # bash completion
     if test -f /etc/bash_completion
-    then 
+    then
        . /etc/bash_completion
     fi
 
@@ -173,7 +173,7 @@ if [ "$PS1" ]; then
          sfsagent >/dev/null
          . $HOME/.sfs/certprogs
       fi
-    fi    
+    fi
     fi
 
     # GPG agent
