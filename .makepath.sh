@@ -12,29 +12,17 @@ else
 	fi
 fi
 
-if [ -x $HOME/apama-src/get_libtype ]; then
-	libname=`$HOME/apama-src/get_libtype`
-	buildname=`$HOME/apama-src/get_buildtype`
+if [ -x $HOME/apama-src/get_ipath ]; then
 	ipath=`$HOME/apama-src/get_buildtype`
-elif [ -x /var/tmp/$USER/apama-src/get_libtype ]; then
-	libname=`/var/tmp/$USER/apama-src/get_libtype`
-	buildname=`/var/tmp/$USER/apama-src/get_buildtype`
-	ipath=`/var/tmp/$USER/apama-src/get_ipath`
-elif [ -x /dev/shm/$USER/apama-src/get_libtype ]; then
-	libname=`/dev/shm/$USER/apama-src/get_libtype`
-	buildname=`/dev/shm/$USER/apama-src/get_buildtype`
+elif [ -x /work/$USER/apama-src/get_ipath ]; then
+	ipath=`/work/$USER/apama-src/get_ipath`
+elif [ -x /shm/$USER/apama-src/get_ipath ]; then
 	ipath=`/dev/shm/$USER/apama-src/get_ipath`
-elif [ -x $HOME/bin/get_libtype ]; then
-	libname=`$HOME/bin/get_libtype`
-	buildname=`$HOME/bin/get_buildtype`
+elif [ -x $HOME/bin/get_ipath ]; then
 	ipath=`$HOME/bin/get_ipath`
 fi
 
-if [ -n "$cambridge" ]; then
-	apama_lib=/shared/apama-lib3
-else
-	apama_lib=/apama_build/shared/apama-lib3
-fi
+apama_lib=/apama-lib4
 
 buildtime=$apama_lib/$ipath
 buildtime_java=$apama_lib/all
