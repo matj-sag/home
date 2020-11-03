@@ -185,12 +185,15 @@ if [ "$PS1" ]; then
        keychain --quiet $HOME/.ssh/id_rsa  $HOME/.ssh/identity E62FA358
        . $HOME/.keychain/illythia-sh
        . $HOME/.keychain/illythia-sh-gpg
-    elif test -f $HOME/.ssh/id_rsa;
-    then if test -x "`which keychain`"
+    elif test -x "`which keychain`"
     then
-       keychain --quiet $HOME/.ssh/id_rsa  $HOME/.ssh/identity
+		if [ -f $HOME/.ssh/id_rsa ]; then
+			 keychain --quiet $HOME/.ssh/id_rsa
+		else
+			 keychain --quiet
+		fi
        . $HOME/.keychain/`uname -n`-sh
-    fi
+       . $HOME/.keychain/`uname -n`-sh-gpg
     fi
 
     if [ -f "$HOME/.otpw" ]; then
@@ -218,7 +221,7 @@ fi
 export AP_ASCII_COLOURS=true
 export AP_IGNORE_MISSING_TEST_DIRS=true
 export APB_SKIP_VERSION=true
-export XPYBUILD_WORKERS_PER_CPU=0.75
+export XPYBUILD_WORKERS_PER_CPU=0.2
 if [ "$TERM" == "rxvt-unicode" ]; then export TERM=rxvt; fi
 fi
     # env vars
