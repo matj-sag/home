@@ -13,7 +13,7 @@ else
 fi
 
 if [ -x $HOME/apama-src/get_ipath ]; then
-	ipath=`$HOME/apama-src/get_buildtype`
+	ipath=`$HOME/apama-src/get_ipath`
 elif [ -x /work/$USER/apama-src/get_ipath ]; then
 	ipath=`/work/$USER/apama-src/get_ipath`
 elif [ -x /shm/$USER/apama-src/get_ipath ]; then
