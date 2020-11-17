@@ -45,9 +45,9 @@ fi
 SVNVERSION=`svn --version | sed -n '1s/.*version 1\.\([0-9]*\)\..*/\1/p'`
 
 if [ -n "$QTP" ]; then
-	svn -q co http://$SERVER.apama.com/dev/$PREFIX/$BRANCH
+	svn -q co https://$SERVER.apama.com/dev/$PREFIX/$BRANCH
 else
-	svn -q co -N http://$SERVER.apama.com/dev/$PREFIX/$BRANCH
+	svn -q co -N https://$SERVER.apama.com/dev/$PREFIX/$BRANCH
 fi
 
 REALBRANCH="` sed 's/@.*$//' <<< $BRANCH`"
