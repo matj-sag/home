@@ -104,6 +104,10 @@ if [ "$PS1" ]; then
 	{
 		pat="$1"
 		shift
+		if [[ "$pat" == "--color=auto" ]]; then
+			pat="$1"
+			shift
+		fi
 		unset paths
 		while [ -n "$1" ] && [ "${1:0:1}" != "-" ] && [ "${1}" != "(" ]; do
 			paths="$paths $1"
@@ -112,24 +116,26 @@ if [ "$PS1" ]; then
 		if [ -z "$paths" ]; then
 			paths=.
 		fi
+		echo "pat=$pat"
+		echo "paths=$paths"
 		if [ "`uname`" != "SunOS" ]; then
 			if [ -z "$1" ]; then
 				set -x
-				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -print0 | xargs -0 grep -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -print0 | xargs -0 grep --color=auto -i "$pat" 
 				set +x
 			else 
 				set -x
-				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and "$@" -print0 | xargs -0 grep -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and "$@" -print0 | xargs -0 grep --color=auto -i "$pat"
 				set +x
 			fi
 		else
 			if [ -z "$1" ]; then
 				set -x
-				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f | xargs grep -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f | xargs grep --color=auto -i "$pat"
 				set +x
 			else 
 				set -x
-				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and "$@" | xargs grep -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and "$@" | xargs grep --color=auto -i "$pat"
 				set +x
 			fi
 		fi
@@ -188,12 +194,13 @@ if [ "$PS1" ]; then
     elif test -x "`which keychain`"
     then
 		if [ -f $HOME/.ssh/id_rsa ]; then
-			 keychain --quiet $HOME/.ssh/id_rsa
+			 keychain --quiet --agents ssh,gpg $HOME/.ssh/id_rsa
 		else
-			 keychain --quiet
+			 keychain --quiet --agents ssh,gpg
 		fi
        . $HOME/.keychain/`uname -n`-sh
-       . $HOME/.keychain/`uname -n`-sh-gpg
+       if [ -f $HOME/.keychain/`uname -n`-sh-gpg ]; then . $HOME/.keychain/`uname -n`-sh-gpg; fi
+       if [ -f $HOME/.keychain/`uname -n`-gpg-sh ]; then . $HOME/.keychain/`uname -n`-gpg-sh; fi
     fi
 
     if [ -f "$HOME/.otpw" ]; then

@@ -43,7 +43,7 @@ fi
 export hostcolour
 
 unset task
-uname=`uname -sm`
+uname="`lsb_release -s -i` `uname -m`"
 if [ -x /usr/bin/whoami ]; then
 	USER=`whoami`
 fi
@@ -62,7 +62,7 @@ parse_svn_repository_root() {
 parse_svn() {
    local LD_LIBRARY_PATH= 
 	unset IFS
-	sed 's/ /@/' <<< `svn info 2>/dev/null | egrep '^(URL|Revision)' | sed -ne '/^Revision/s/.*: //p;/^URL/s#^URL: '"$(parse_svn_repository_root)"'*[^/]*/\([^/]*\)/\([^/]*\).*$#\1/\2#p'` 
+	sed 's/ /@/' <<< `svn info 2>/dev/null | egrep '^(URL|Revision)' | sed -ne 's,analyticskit/branches/,branches/ak:,;/^Revision/s/.*: //p;/^URL/s#^URL: '"$(parse_svn_repository_root)"'*[^/]*/\([^/]*\)/\([^/]*\).*$#\1/\2#p'` 
 }
 
 function title {
@@ -90,6 +90,8 @@ if [ -n "$cambridge" ]; then
 			vcsprompt="(svn:$svndata) "
 			if egrep '/apama-(src|test|build)($|/)' <<< $PWD &> /dev/null; then
 				export svntask="`sed 's,.*/\(.*\)@.*,\1,' <<< $svndata`-`sed 's,.*/[^/]*/apama-\([^/]*\).*,\1,' <<< $PWD`"
+			elif egrep '^ak:' <<< $svndata &> /dev/null; then
+				export svntask="`sed 's,.*/\(.*\)@.*,\1,' <<< $svndata`"
 			fi
 		else
 			vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"

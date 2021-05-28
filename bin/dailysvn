@@ -1,14 +1,18 @@
 #!/bin/bash --
 
 BRANCH="$1"
-SOMEDIR="`ls -1 -d /var/tmp/mjj29/*/apama-test | head -n1`"
+SOMEDIR="`ls -1 -d /work/mjj29/*/apama-test | head -n1`"
 RECIPIENT=${RECIPIENT:-matj@softwareag.com}
 
 PATH=/shared/apama-lib3/linux/amd64/all/subversion/1.9.3/bin:$PATH
 ( echo '# vi:syntax=diff'
   echo -ne "Branch diff for `date +"%A %b %d %Y"` of ${BRANCH}\r\n";
-  cd "${SOMEDIR}/../apama-src"; ~matj/bin/svnbranch --daily "${BRANCH}";
-  cd "${SOMEDIR}/../apama-test/etc"; ~matj/bin/svnbranch --daily "${BRANCH}";
-  cd "${SOMEDIR}/../apama-test/python_scripts"; ~matj/bin/svnbranch --daily "${BRANCH}";
-  cd "${SOMEDIR}/../apama-test/tools"; ~matj/bin/svnbranch --daily "${BRANCH}";
+  if echo "${BRANCH}" | grep -qs 'analyticskit/'; then
+	  cd "${SOMEDIR}/.."; ~matj/bin/svnbranch --daily "${BRANCH}";
+  else
+	  cd "${SOMEDIR}/../apama-src"; ~matj/bin/svnbranch --daily "${BRANCH}";
+	  cd "${SOMEDIR}/../apama-test/etc"; ~matj/bin/svnbranch --daily "${BRANCH}";
+	  cd "${SOMEDIR}/../apama-test/python_scripts"; ~matj/bin/svnbranch --daily "${BRANCH}";
+	  cd "${SOMEDIR}/../apama-test/tools"; ~matj/bin/svnbranch --daily "${BRANCH}";
+  fi
 ) | mail -s "Daily diff for `date +"%A %b %d %Y"` of ${BRANCH}" ${RECIPIENT}

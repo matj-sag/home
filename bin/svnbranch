@@ -5,12 +5,19 @@ set -e
 BRANCHCACHE="/tmp/.svnbranch-$USER-branchcache"
 
 branchtourl() {
-	svn info | sed -n '/^URL/s,URL: \(.*\)'"$CURRENT"'\(.*\),\1'"$1"'\2,p'
+	BRANCH="$1"
+	if echo "$BRANCH" | grep -sq 'branches/'; then 
+		BASE="branches/$CURRENT"
+	else
+		BASE="$CURRENT"
+	fi
+	svn info | sed -n '/^URL/s,URL: \(.*\)'"$BASE"'\(.*\),\1'"$1"'\2,p'
 }
 
 branchexists() {
 	exists=1
 	branch="$1"
+	if echo "$branch" | grep -sq 'branches/'; then return 0; fi
 	for i in $BRANCHES; do
 		if [ "$i" = "$branch" ]; then
 			exists=0
@@ -227,6 +234,10 @@ fi
 
 ROOT="`svn info | sed -n '/^Repository Root:/s/[^:]*: //p'`"
 SVNURL="`svn info | sed -n '/^URL/s,URL: ,,p'`"
+if grep "analyticskit" <<< $SVNURL &> /dev/null; then
+	ROOT="${ROOT}/analyticskit"
+	BRANCHCACHE="${BRANCHCACHE}-ak"
+fi
 if grep "$ROOT/branches/users/mjj29/archive" <<< $SVNURL &>/dev/null; then
 	CURRENT="`echo $SVNURL | sed "s,$ROOT/branches/\([^/]*/[^/]*/[^/]*/[^/]*\)/\{0\,1\}.*,\1,"`"
 elif grep "$ROOT/branches/users" <<< $SVNURL &>/dev/null; then
