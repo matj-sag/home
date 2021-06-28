@@ -62,7 +62,7 @@ parse_svn_repository_root() {
 parse_svn() {
    local LD_LIBRARY_PATH= 
 	unset IFS
-	sed 's/ /@/' <<< `svn info 2>/dev/null | egrep '^(URL|Revision)' | sed -ne 's,analyticskit/branches/,branches/ak:,;/^Revision/s/.*: //p;/^URL/s#^URL: '"$(parse_svn_repository_root)"'*[^/]*/\([^/]*\)/\([^/]*\).*$#\1/\2#p'` 
+	sed 's/ /@/' <<< $(echo `svn info 2>/dev/null | egrep '^(URL|Revision)' | sed -ne 's,analyticskit/branches/,branches/ak:,;/^Revision/s/.*: //p;/^URL/s#^URL: '"$(parse_svn_repository_root)"'*[^/]*/\([^/]*\)/\([^/]*\).*$#\1/\2#p'` )
 }
 
 function title {
@@ -81,6 +81,10 @@ function rc {
 	export rc=`cut -d: -f1 <<< $rcinput`
 	export last=`cut -d: -f2- <<< $rcinput`
 }
+
+if [ -f "$HOME/bin/git-prompt.sh" ]; then
+	. "$HOME/bin/git-prompt.sh" 
+fi
 
 if [ -n "$cambridge" ]; then
 	function vcs {
