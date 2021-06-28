@@ -60,7 +60,7 @@ fi
 
 cd `basename $REALBRANCH`
 
-for LIB in apama-lib2 apama-lib3 apama-lib4; do 
+for LIB in apama-lib4 apama-lib5; do 
 	if [ -e $LIB ]; then
 		true
 	elif [ -e /apama_build/shared/$LIB ]; then
