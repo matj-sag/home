@@ -1,38 +1,44 @@
 #!/bin/sh --
 
-if [ "$2" == "" ]; then
+if [ "$1" == "" ]; then
 	echo "Usage: $0 [PAQ|PAM] <itrac jsessionid> <release...>"
 	exit 1
 fi
 
 if [ "$1" == "PAM" ]; then
-	PREFIX=http://svn.apama.com/dev/branches/dev/
+	PREFIX=svn://svn.apama.com/branches/dev/
 elif [ "$1" == "PAQ" ]; then
-	PREFIX=http://svn.apama.com/dev/analyticskit/branches/dev/
+	PREFIX=svn://svn.apama.com/analyticskit/branches/dev/
 else
 	echo "Please specify PAM or PAQ branches to check"
 	exit 1
 fi
 shift
 
-#for branch in `svn ls $PREFIX | egrep -i '(bf|pam|pab)'`;
-#do
-#	issue=`echo $branch | sed 's/.*PAM[_-]*\([0-9]*\).*/PAM-\1/i'`
-#	if [ "$issue" == "$branch" ]; then
-#		issue=`echo $branch | sed 's/.*BF[_-]*\([0-9]*\).*/BF-\1/i'`
-#	fi
-#	if [ "$issue" == "$branch" ]; then
-#		issue=`echo $branch | sed 's/.*PAB[_-]*\([0-9]*\).*/PAB-\1/i'`
-#	fi
-#	status=`get_jira_status.py $1 $issue 2>/dev/null`
-#	echo "dev/$branch = $issue [$status]";
-#	if [ "$status" == "Done" ] || [ "$status" == "Completed" ] || [ "$status" == "Accepted" ] || [ "$status" == "Released" ] || [ "$status" == "Released Internally" ] || [ "$status" == "Closed" ]; then
-#		responsible=`svn info "$PREFIX/$branch" | grep '^Last Changed Author:' | cut -d: -f2`
-#		echo "Branch should be deleted. Last committer = $responsible"
-#	fi
-#done
+if ! `echo $1 | grep -q ......... ` ; then
+	echo "Skipping checking of itrac"
+else 
+	 . ~/.python/bin/activate
 
-shift
+	for branch in `svn ls $PREFIX | egrep -i '(bf|pam|pab)'`;
+	do
+		issue=`echo $branch | sed 's/.*PAM[_-]*\([0-9]*\).*/PAM-\1/i'`
+		if [ "$issue" == "$branch" ]; then
+			issue=`echo $branch | sed 's/.*BF[_-]*\([0-9]*\).*/BF-\1/i'`
+		fi
+		if [ "$issue" == "$branch" ]; then
+			issue=`echo $branch | sed 's/.*PAB[_-]*\([0-9]*\).*/PAB-\1/i'`
+		fi
+		status=`get_jira_status.py $1 $issue 2>/dev/null`
+		echo "dev/$branch = $issue [$status]";
+		if [ "$status" == "Done" ] || [ "$status" == "Completed" ] || [ "$status" == "Accepted" ] || [ "$status" == "Released" ] || [ "$status" == "Released Internally" ] || [ "$status" == "Closed" ]; then
+			responsible=`svn info "$PREFIX/$branch" | grep '^Last Changed Author:' | cut -d: -f2`
+			echo "Branch should be deleted. Last committer = $responsible"
+		fi
+	done
+
+	shift
+fi
 
 for release in $*; do
 	echo "Checking $release"
