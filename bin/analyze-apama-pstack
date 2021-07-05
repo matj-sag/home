@@ -1,0 +1,174 @@
+#!/usr/bin/env python
+
+import os, sys, getopt
+
+class Thread(object):
+	verboseTraces = False
+	def __init__(self, lines):
+		self._lines = lines
+		self._category = self.__categorize()
+		
+	def category(self): return self._category
+
+	def __str__(self):
+		s = ""
+		for l in self._lines:
+			if Thread.verboseTraces:
+				s = s+l+os.linesep
+			else:
+				els = l.split(' ')
+				try:
+					if els[4] != 'start_thread' and els[4] != 'clone':
+						s = s+('APAMA:  ' if 'Apama' in els[-1] else 'SYSTEM: ')+str(els[4])+os.linesep
+				except: pass
+		return s
+
+	def __categorize(self):
+		for l in self._lines:
+			if 'ap_main' in l:
+				return 'correlator main'
+			elif 'java_start' in l:
+				return 'java'
+			elif 'JVM_MonitorWait' in l:
+				return 'java'
+			elif 'Java_sun_nio' in l:
+				return 'java'
+			elif 'Unsafe_Park' in l:
+				return 'java'
+			elif 'JVM_Sleep' in l:
+				return 'java'
+			elif 'Java_java_net_PlainSocketImpl_socketAccept' in l:
+				return 'java'
+			elif 'com::apama::SocketUtil::waitForIO' in l:
+				return 'messaging connection'
+			elif 'CorrelatorImplementation::LicenceExpiryThread::run' in l:
+				return 'correlator service'
+			elif 'com::apama::ThreadReaperThread::run' in l:
+				return 'correlator service'
+			elif 'com::apama::correlator::ServerCorrelator::CorrelatorStatusLogger::run' in l:
+				return 'correlator service'
+			elif 'NameStore::AsyncDeleter::Runner::run' in l:
+				return 'correlator service'
+			elif 'ReinjectQueue::EventReinjectWorkerThread' in l:
+				return 'correlator service'
+			elif '::ExtraWorkerHelperThread::run' in l:
+				return 'correlator service'
+			elif 'SchedulableQueue::DeadQueueFinalizer::run' in l:
+				return 'correlator service'
+			elif 'Clock::frequencyClockThread' in l:
+				return 'correlator service'
+			elif '::OOBThread::run' in l:
+				return 'correlator service'
+			elif 'com::apama::corba::MessageAcknowledgementThread::run' in l:
+				return 'correlator service'
+			elif 'com::apama::corba::MessagingConnectionReaper::run' in l:
+				return 'correlator service'
+			elif 'com::apama::SocketConnectionDispatcher::runJob' in l:
+				return 'correlator service'
+			elif '::MemoryCheckingThread::run' in l:
+				return 'correlator service'
+			elif '::Worker::run' in l:
+				return 'idle correlator'
+
+printCategories = set()
+
+def analyze(traces):
+	cats = {}
+	uncat = []
+	for t in traces:
+		if t.category():
+			cats[t.category()] = cats.get(t.category(), [])
+			cats[t.category()].append(t)
+		else:
+			uncat.append(t)
+
+	for name in cats:
+		print("Found %d %s threads" % (len(cats[name]), name))
+		if name in printCategories:
+			for thread in cats[name]:
+				print(str(thread))
+
+	if len(uncat):
+		print("Found %d uncategorized threads: " % len(uncat))
+		for thread in uncat:
+			print(str(thread))
+
+def parse(f):
+	traces = []
+	lines = []
+	for l in f:
+		if l.startswith("Thread") and len(lines) > 0:
+			traces.append(Thread(lines))
+			lines = []
+		else:
+			lines.append(l.strip())
+	traces.append(Thread(lines))
+	analyze(traces)
+
+def usage():
+	print("Usage: analyze-apama-pstack [options] <pstack file>|-")
+	print("Options:")
+	print("	-h | --help      Show usage information")
+	print("	-v | --verbose   Show verbose trace information")
+	print("	To unhide the thread in particular categories:")
+	print("	-j | --java      Unhide Java threads")
+	print("	-s | --service   Unhide correlator service threads")
+	print("	-i | --idle      Unhide idle correlator threads")
+	print("	-m | --messaging Unhide messaging connection threads")
+	print("	-M | --main      Unhide correlator main thread")
+	print("	-a | --all       Unhide all threads")
+	sys.exit(1)
+
+def main(args):
+
+	global printCategories
+
+	try:
+		(opts, args) = getopt.gnu_getopt(args, 'hjsaimMv', ['help', 'java', 'service', 'idle', 'messaging', 'main', 'verbose', 'all'])
+	except Exception as e:
+		print("Unknown Option: %s" % e)
+		usage()
+
+	for (option, value) in opts:
+		if option == "-h" or option == "--help":
+			usage()
+		elif option == "-j" or option == "--java":
+			printCategories.add("java")
+		elif option == "-s" or option == "--service":
+			printCategories.add("correlator service")
+		elif option == "-i" or option == "--idle":
+			printCategories.add("idle correlator")
+		elif option == "-m" or option == "--messaging":
+			printCategories.add("messaging connection")
+		elif option == "-M" or option == "--main":
+			printCategories.add("correlator main")
+		elif option == "-a" or option == "--all":
+			printCategories.add("messaging connection")
+			printCategories.add("idle correlator")
+			printCategories.add("correlator main")
+			printCategories.add("java")
+			printCategories.add("correlator service")
+		elif option == "-v" or option == "--verbose":
+			Thread.verboseTraces = True
+
+	if len(args) < 1 or len(args) > 1:
+		usage()
+
+	try:
+		if args[0] == "-":
+			f = sys.stdin
+			parse(f)
+		else:
+			with open(args[0]) as f:
+				parse(f)
+
+	except Exception as e:
+		print("Analyzing pstack failed: %s" % e)
+		raise
+		sys.exit(1)
+
+	sys.exit(0)
+
+
+if __name__ == "__main__":
+	main(sys.argv[1:])

@@ -1,0 +1,22 @@
+#!/bin/bash --
+
+export DOCKER_HOST=ssh://hydra.apama.com
+
+if ! docker pull -q iregistry.eur.ad.sag/apama/correlator:PI &>/dev/null; then
+	(echo "Docker pull failed:"
+	docker pull -q iregistry.eur.ad.sag/apama/correlator:PI 2>&1
+	echo "Yours etc,"
+	echo "The Docker version checking bot"
+	) | mail -s"Issue with DTR" apama-build-admins@softwareag.com
+fi
+docker pull -q iregistry.eur.ad.sag/apama/correlator:SIC &>/dev/null
+
+if [ "`docker images --format raw iregistry.eur.ad.sag/apama/correlator:PI | grep image_id:`" != "`docker images --format raw iregistry.eur.ad.sag/apama/correlator:SIC | grep image_id:`" ]; then
+	(echo "Looks like promotion has not been done:"
+	docker images --format raw iregistry.eur.ad.sag/apama/correlator:PI
+	echo "vs"
+	docker images --format raw iregistry.eur.ad.sag/apama/correlator:SIC
+	echo "Yours etc,"
+	echo "The Docker version checking bot"
+	) | mail -s"Docker promotion missed?" apama-build-admins@softwareag.com
+fi
