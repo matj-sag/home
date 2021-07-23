@@ -1,10 +1,8 @@
 call plug#begin('~/.vim/plugged')
-Plug 'prabirshrestha/vim-lsp'
 Plug 'frazrepo/vim-rainbow'
 Plug 'adelarsq/vim-matchit'
 Plug 'itchyny/lightline.vim'
 Plug 'airblade/vim-gitgutter'
-Plug 'nathanaelkane/vim-indent-guides'
 Plug 'plasticboy/vim-markdown'
 Plug 'elzr/vim-json'
 Plug 'leafgarland/typescript-vim'
@@ -21,6 +19,10 @@ Plug 'terryma/vim-smooth-scroll'
 Plug 'avakhov/vim-yaml'
 Plug 'ervandew/supertab'
 Plug 'ntpeters/vim-better-whitespace'
+Plug 'adelarsq/vim-matchit'
+Plug 'scrooloose/nerdtree'
+Plug 'vim-syntastic/syntastic'
+Plug 'tpope/vim-fugitive'
 call plug#end()
 set noexpandtab
 set softtabstop=3
@@ -67,7 +69,31 @@ map <F2> :Ex<CR>
 map <F3> :bp<CR>
 map <F4> :bn<CR>
 
+let g:clang_library_path='/shared/apama-lib5/linux/amd64/rhel8-gcc8.4.1/clang/12.0.0/lib/'
+set laststatus=2
+if !has('gui_running')
+  set t_Co=256
+endif
+let g:lightline = { 'colorscheme': 'PaperColor', }
+set noshowmode
+let g:rainbow_active = 1
+let g:vim_json_syntax_conceal = 0
 
+noremap <silent> <PageUp> :call smooth_scroll#up(&scroll/2, 3, 1)<CR>
+noremap <silent> <PageDown> :call smooth_scroll#down(&scroll/2, 3, 1)<CR>
+noremap <silent> <C-PageUp> :call smooth_scroll#up(&scroll, 5, 2)<CR>
+noremap <silent> <C-PageDown> :call smooth_scroll#down(&scroll, 5, 2)<CR>
+
+autocmd VimEnter * NERDTree | wincmd p
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
 
 "
 " How to use split windows:
