@@ -155,6 +155,10 @@ if [ "$PS1" ]; then
     else
       PS1='\u@\h:\w \$'
     fi
+
+	 if [ "$TERM" == "xterm" ] && grep -q ^10.248 <<< $SSH_CLIENT; then
+		 export TERM=putty
+	 fi
 	 
 	 . $HOME/.makepath.sh
 
