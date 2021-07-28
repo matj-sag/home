@@ -213,17 +213,6 @@ if [ "$PS1" ]; then
        fi
     fi
 
-if [ "`uname`" = "SunOS" ]; then
-	export PAGER=more
-else
-	if which vim 2>/dev/null | grep ^/ >/dev/null ; then
-		 export EDITOR=vim
-		 export PAGER="sh -c 'sed s/.//g | view -'"
-	elif which less 2>/dev/null | grep ^/ >/dev/null ; then
-		 export EDITOR=vi
-		 export PAGER="less"
-	fi
-fi
     export DEBEMAIL=mjj29@debian.org
     export LOCKPRG=/usr/bin/vlock
     export QUILT_PATCHES=debian/patches
