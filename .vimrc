@@ -91,12 +91,12 @@ let g:syntastic_check_on_wq = 0
 
 " find options for syntax checkers. Builds generate classpath, include dirs,
 " etc
-if filereadable(".syntastic_java_java_args.txt")
-	let g:syntastic_java_javac_args=readfile(".syntastic_java_java_args.txt")[0]
+if !empty(findfile(".syntastic_java_java_args.txt", ".;"))
+	let g:syntastic_java_javac_args=readfile(findfile(".syntastic_java_java_args.txt", ".;"))[0]
 endif
 
-if filereadable(".syntastic_gcc_gcc_args.txt")
-	let g:syntastic_cpp_compiler_options=readfile(".syntastic_gcc_gcc_args.txt")[0]
+if !empty(findfile(".syntastic_gcc_gcc_args.txt", ".;"))
+	let g:syntastic_cpp_compiler_options=readfile(findfile(".syntastic_gcc_gcc_args.txt", ".;"))[0]
 endif
 
 let g:syntastic_python_python_exe="~/bin/checkpycompile"
