@@ -23,6 +23,7 @@ Plug 'adelarsq/vim-matchit'
 Plug 'scrooloose/nerdtree'
 Plug 'vim-syntastic/syntastic'
 Plug 'tpope/vim-fugitive'
+Plug 'mjj29/vim-epl'
 call plug#end()
 set noexpandtab
 set softtabstop=3
