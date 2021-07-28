@@ -41,10 +41,6 @@ let java_allow_cpp_keywords=1
 set foldmethod=indent
 set foldlevel=1
 set lbr
-" new tex file
-map nt i\documentclass[a4paper,12pt]{report}<enter><enter>\author{Matthew Johnson\\matthew.johnson@cl.cam.ac.uk}<enter>\title{}<enter><enter>\begin{document}<enter><enter>\maketitle<enter><enter><enter><enter>\end{document}<esc>/title<enter>$i
-" temp java file
-map jt ipublic class test<enter>{<enter>public static void main(String[] args)<enter>{<enter>}<enter>}<enter><esc>kkko
 map rl gqap
 set background=dark
 autocmd FileType make set noet
@@ -69,7 +65,7 @@ map <F2> :Ex<CR>
 map <F3> :bp<CR>
 map <F4> :bn<CR>
 
-let g:clang_library_path='/shared/apama-lib5/linux/amd64/rhel8-gcc8.4.1/clang/12.0.0/lib/'
+let g:clang_library_path='/apama-lib5/linux/amd64/rhel8-gcc8.4.1/clang/12.0.0/lib/'
 set laststatus=2
 if !has('gui_running')
   set t_Co=256
@@ -79,10 +75,8 @@ set noshowmode
 let g:rainbow_active = 1
 let g:vim_json_syntax_conceal = 0
 
-noremap <silent> <PageUp> :call smooth_scroll#up(&scroll/2, 3, 1)<CR>
-noremap <silent> <PageDown> :call smooth_scroll#down(&scroll/2, 3, 1)<CR>
-noremap <silent> <C-PageUp> :call smooth_scroll#up(&scroll, 5, 2)<CR>
-noremap <silent> <C-PageDown> :call smooth_scroll#down(&scroll, 5, 2)<CR>
+noremap <silent> <PageUp> :call smooth_scroll#up(&scroll, 3, 1)<CR>
+noremap <silent> <PageDown> :call smooth_scroll#down(&scroll, 3, 1)<CR>
 
 autocmd VimEnter * NERDTree | wincmd p
 
