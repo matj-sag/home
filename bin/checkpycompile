@@ -4,6 +4,12 @@ if head -n1 "$1" | grep -qs '#!.*python3'; then
 	python3 -m py_compile "$1"
 elif head -n1 "$1" | grep -qs '^#!'; then
 	python -m py_compile "$1"
+elif echo "$1" | grep -qs xpybuild.py; then
+	python3 -m py_compile "$1"
+elif grep -qs pysys "$1"; then
+	python3 -m py_compile "$1"
+elif grep -qs apama.test "$1"; then
+	python -m py_compile "$1"
 else
 	python3 -m py_compile "$1"
 fi
