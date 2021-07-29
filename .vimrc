@@ -101,6 +101,7 @@ if !empty(findfile(".syntastic_gcc_gcc_args.txt", ".;"))
 endif
 
 let g:syntastic_python_python_exe="~/bin/checkpycompile"
+let g:syntastic_epl_checkers=['correlator']
 
 "
 " How to use split windows:
