@@ -41,6 +41,7 @@ let java_highlight_functions="style"
 let java_allow_cpp_keywords=1
 set foldmethod=indent
 set foldlevel=1
+set number
 set lbr
 map rl gqap
 set background=dark
@@ -102,6 +103,12 @@ endif
 
 let g:syntastic_python_python_exe="~/bin/checkpycompile"
 let g:syntastic_epl_checkers=['correlator']
+
+augroup python
+    autocmd!
+    " Add shiftwidth and/or softtabstop if you want to override those too.
+    autocmd FileType python setlocal noexpandtab tabstop=3 softtabstop=3 shiftwidth=3
+augroup end
 
 "
 " How to use split windows:
