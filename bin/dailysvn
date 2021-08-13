@@ -1,10 +1,18 @@
 #!/bin/bash --
 
+if [ -z $1 ]; then
+	echo "Usage: $0 <branch>"
+fi
+
 BRANCH="$1"
 SOMEDIR="`ls -1 -d /work/mjj29/*/apama-test | head -n1`"
+
+if ! [ -d $SOMEDIR ]; then
+	echo "You must have a branch checked out in /work"
+fi
+
 RECIPIENT=${RECIPIENT:-matj@softwareag.com}
 
-PATH=/shared/apama-lib3/linux/amd64/all/subversion/1.9.3/bin:$PATH
 ( echo '# vi:syntax=diff'
   echo -ne "Branch diff for `date +"%A %b %d %Y"` of ${BRANCH}\r\n";
   if echo "${BRANCH}" | grep -qs 'analyticskit/'; then
