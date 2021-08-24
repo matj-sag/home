@@ -63,6 +63,8 @@ if [ "$PS1" ]; then
 	 alias svnls='svn ls'
 	 alias tt='/tools/apama-util/scripts/testing/testtriage.py'
 
+	 export SVN_EDITOR=vim
+
 	function addup()
 	{
 		cat | sed '1s/^/8k /;2,$s/$/ +/;$s/$/ p/' | dc
