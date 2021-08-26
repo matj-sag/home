@@ -205,8 +205,6 @@ if [ "$PS1" ]; then
 			 keychain --quiet --agents ssh,gpg
 		fi
        . $HOME/.keychain/`uname -n`-sh
-       if [ -f $HOME/.keychain/`uname -n`-sh-gpg ]; then . $HOME/.keychain/`uname -n`-sh-gpg; fi
-       if [ -f $HOME/.keychain/`uname -n`-gpg-sh ]; then . $HOME/.keychain/`uname -n`-gpg-sh; fi
     fi
 
     if [ -f "$HOME/.otpw" ]; then
