@@ -70,8 +70,10 @@ function title {
 		# tmux
 		echo -en "\033]2;[$prompttask] ${hostnam} ($rc): $last\033\\"
 	elif [ "${TERM/screen/}" != "${TERM}" ]; then
+		# also tmux, to deal with ssh from inside tmux. Sorry screen users
+		echo -en "\033]2;[$prompttask] ${hostnam} ($rc): $last\033\\"
 		# screen
-		echo -en "\033k[$prompttask] ${hostnam} ($rc): $last\033\\"
+		# echo -en "\033k[$prompttask] ${hostnam} ($rc): $last\033\\"
 	else
 		# xterm
 		echo -en "\033]2;[$prompttask] ${hostnam} ($rc): $last\007"
