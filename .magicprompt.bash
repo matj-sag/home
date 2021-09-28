@@ -66,7 +66,10 @@ parse_svn() {
 }
 
 function title {
-	if [ "${TERM/screen/}" != "${TERM}" ]; then
+	if [ "${TMUX}" != "" ]; then
+		# tmux
+		echo -en "\033]2;[$prompttask] ${hostnam} ($rc): $last\033\\"
+	elif [ "${TERM/screen/}" != "${TERM}" ]; then
 		# screen
 		echo -en "\033k[$prompttask] ${hostnam} ($rc): $last\033\\"
 	else
