@@ -1,0 +1,9 @@
+# This is Git's per-user configuration file.
+[user]
+	email = matj@softwareag.com
+	name = Matthew Johnson
+# Please adapt and uncomment the following lines:
+#	name = Matthew Johnson
+#	email = matj@softwareag.com
+[credential]
+	helper = gpgagent
