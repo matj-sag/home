@@ -222,6 +222,7 @@ export AP_ASCII_COLOURS=true
 export AP_IGNORE_MISSING_TEST_DIRS=true
 export APB_SKIP_VERSION=true
 export XPYBUILD_WORKERS_PER_CPU=0.2
+export LOG4J_FORMAT_MSG_NO_LOOKUPS=true
 if [ "$TERM" == "rxvt-unicode" ]; then export TERM=rxvt; fi
 fi
     # env vars
