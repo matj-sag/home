@@ -1,9 +1,14 @@
 # This is Git's per-user configuration file.
 [user]
-	email = matj@softwareag.com
+	email = matthew.johnson@softwareag.com
 	name = Matthew Johnson
+	signingkey = 0xB3983968
 # Please adapt and uncomment the following lines:
 #	name = Matthew Johnson
 #	email = matj@softwareag.com
 [credential]
 	helper = gpgagent
+[gpg]
+	format = x509
+[commit]
+	gpgsign = true
