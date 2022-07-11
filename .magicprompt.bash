@@ -68,15 +68,15 @@ parse_svn() {
 function title {
 	if [ "${TMUX}" != "" ]; then
 		# tmux
-		echo -en "\033]2;[$prompttask] ${hostnam} ($rc): $last\033\\"
+		echo -en "\033]2;<${hostnam}> [$prompttask] ($rc): $last\033\\"
 	elif [ "${TERM/screen/}" != "${TERM}" ]; then
 		# also tmux, to deal with ssh from inside tmux. Sorry screen users
-		echo -en "\033]2;[$prompttask] ${hostnam} ($rc): $last\033\\"
+		echo -en "\033]2;<${hostnam}> [$prompttask] ($rc): $last\033\\"
 		# screen
-		# echo -en "\033k[$prompttask] ${hostnam} ($rc): $last\033\\"
+		# echo -en "\033k<${hostnam}> [$prompttask] ($rc): $last\033\\"
 	else
 		# xterm
-		echo -en "\033]2;[$prompttask] ${hostnam} ($rc): $last\007"
+		echo -en "\033]2;<${hostnam}> [$prompttask] ($rc): $last\007"
 	fi
 }
 
@@ -104,6 +104,11 @@ if [ -n "$cambridge" ]; then
 			fi
 		else
 			vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"
+			if egrep '/apama-(src|test|build)($|/)' <<< $PWD &> /dev/null; then
+				export svntask="`sed 's,.*/\(.*\),\1,' <<< $(__git_ps1 "%s")`-`sed 's,.*/[^/]*/apama-\([^/]*\).*,\1,' <<< $PWD`"
+			else
+				export svntask="`__git_ps1 "%s"`"
+			fi
 		fi
 		if [ -z "$vcsprompt" ]; then
 			vcsprompt='(\A) '

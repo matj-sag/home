@@ -10,7 +10,7 @@ if [ "$1" == "--branch" ]; then
 	ROOT="`svn info | grep '^Repository Root:' | cut -d: -f2- | sed 's/^ *//'`"
 	URL="`svn info | grep '^URL:' | cut -d: -f2- | sed 's/^ *//'`"
 	FILEROOT="`echo $URL | sed "s%$ROOT%%"`"
-	FILES="`svn log --stop-on-copy -v | grep '^ ' | sed -n "s%.*$FILEROOT/%%p" | sort -u`"
+	FILES="`svn log --stop-on-copy -v | grep '^ ' | sed -n "s/(.*)//;s%.*$FILEROOT/%%p" | sort -u`"
 else
 	FILES="`svn st -q | sed 's/.......//'`"
 fi

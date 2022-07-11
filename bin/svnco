@@ -3,7 +3,7 @@
 FULL=
 
 if [ "$1" == "--help" ]; then
-	echo "Usage: svnco [--innovation] [--full] [--with-qtp] <branch>[@<revision>] [<server>]"
+	echo "Usage: svnco [--innovation] [--full] [--with-qtp] <branch>[@<revision>] [<target>] [<server>]"
 	exit 1
 fi
 
@@ -29,12 +29,13 @@ while true; do
 done
 
 BRANCH="$1"
-SERVER="$2"
+TARGET="$2"
+SERVER="$3"
 
 set -e
 
 if [ -z "$BRANCH" ]; then
-	echo "Usage: svnco [--full] [--with-qtp] <branch>[@<revision>] [server]"
+	echo "Usage: svnco [--full] [--with-qtp] <branch>[@<revision>] [<target>] [<server>]"
 	exit 1
 fi
 
@@ -44,13 +45,17 @@ fi
 
 SVNVERSION=`svn --version | sed -n '1s/.*version 1\.\([0-9]*\)\..*/\1/p'`
 
-if [ -n "$QTP" ]; then
-	svn -q co https://$SERVER.apama.com/dev/$PREFIX/$BRANCH
-else
-	svn -q co -N https://$SERVER.apama.com/dev/$PREFIX/$BRANCH
+REALBRANCH="` sed 's/@.*$//' <<< $BRANCH`"
+if [ -z "$TARGET" ]; then
+	TARGET=`basename $REALBRANCH`
 fi
 
-REALBRANCH="` sed 's/@.*$//' <<< $BRANCH`"
+if [ -n "$QTP" ]; then
+	svn -q co https://$SERVER.apama.com/dev/$PREFIX/$BRANCH $TARGET
+else
+	svn -q co -N https://$SERVER.apama.com/dev/$PREFIX/$BRANCH $TARGET
+fi
+
 REVISION="` sed 's/^.*@//' <<< $BRANCH`"
 if [ "$REVISION" == "$REALBRANCH" ]; then
 	REVISION=
@@ -58,7 +63,7 @@ else
 	REVISION="-r $REVISION"
 fi
 
-cd `basename $REALBRANCH`
+cd $TARGET
 
 for LIB in apama-lib4 apama-lib5; do 
 	if [ -e $LIB ]; then
