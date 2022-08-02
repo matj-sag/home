@@ -1,19 +1,5 @@
 PROMPTMODE=3 #0=basic, 1=standard, 2=coloured, 3=multi-line
 
-cambridge=
-
-cambridgeranges='10\.1\. 10\.42\.(96|97|98|99|100|101|102|103|104|105|106|107|108|109|110|111)'
-
-if [ -x /sbin/ifconfig ]; then
-	ifcfout="`/sbin/ifconfig -a`"
-	for range in $cambridgeranges; do
-		if echo "$ifcfout" | egrep "inet[ a-z:]*$range" >/dev/null; then
-			cambridge=1
-			break
-		fi
-	done
-fi
-
 export GRAY="\[\033[1;30m\]"
 export LIGHT_GRAY="\[\033[0;37m\]"
 export CYAN="\[\033[1;36m\]"
@@ -91,34 +77,28 @@ if [ -f "$HOME/bin/git-prompt.sh" ]; then
 	. "$HOME/bin/git-prompt.sh" 
 fi
 
-if [ -n "$cambridge" ]; then
-	function vcs {
-		local LD_LIBRARY_PATH= 
-		if ([ -d .svn ] && which svn 2>/dev/null | grep ^/ >/dev/null) || (which svn 2>/dev/null | grep ^/ >/dev/null && svn info &>/dev/null); then
-			svndata=`parse_svn`
-			vcsprompt="(svn:$svndata) "
-			if egrep '/apama-(src|test|build)($|/)' <<< $PWD &> /dev/null; then
-				export svntask="`sed 's,.*/\(.*\)@.*,\1,' <<< $svndata`-`sed 's,.*/[^/]*/apama-\([^/]*\).*,\1,' <<< $PWD`"
-			elif egrep '^ak:' <<< $svndata &> /dev/null; then
-				export svntask="`sed 's,.*/\(.*\)@.*,\1,' <<< $svndata`"
-			fi
+function vcs {
+	local LD_LIBRARY_PATH= 
+	if ([ -d .svn ] && which svn 2>/dev/null | grep ^/ >/dev/null) || (which svn 2>/dev/null | grep ^/ >/dev/null && svn info &>/dev/null); then
+		svndata=`parse_svn`
+		vcsprompt="(svn:$svndata) "
+		if egrep '/apama-(src|test|build)($|/)' <<< $PWD &> /dev/null; then
+			export svntask="`sed 's,.*/\(.*\)@.*,\1,' <<< $svndata`-`sed 's,.*/[^/]*/apama-\([^/]*\).*,\1,' <<< $PWD`"
+		elif egrep '^ak:' <<< $svndata &> /dev/null; then
+			export svntask="`sed 's,.*/\(.*\)@.*,\1,' <<< $svndata`"
+		fi
+	else
+		vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"
+		if egrep '/apama-(src|test|build)($|/)' <<< $PWD &> /dev/null; then
+			export svntask="`sed 's,.*/\(.*\),\1,' <<< $(__git_ps1 "%s")`-`sed 's,.*/[^/]*/apama-\([^/]*\).*,\1,' <<< $PWD`"
 		else
-			vcsprompt="`__git_ps1 "(git:%s) " 2>/dev/null || true`"
-			if egrep '/apama-(src|test|build)($|/)' <<< $PWD &> /dev/null; then
-				export svntask="`sed 's,.*/\(.*\),\1,' <<< $(__git_ps1 "%s")`-`sed 's,.*/[^/]*/apama-\([^/]*\).*,\1,' <<< $PWD`"
-			else
-				export svntask="`__git_ps1 "%s"`"
-			fi
+			export svntask="`__git_ps1 "%s"`"
 		fi
-		if [ -z "$vcsprompt" ]; then
-			vcsprompt='(\A) '
-		fi
-	}
-else
-	function vcs {
-		vcsprompt=
-	}
-fi
+	fi
+	if [ -z "$vcsprompt" ]; then
+		vcsprompt='(\A) '
+	fi
+}
 
 function prompt_command {
    local LD_LIBRARY_PATH= 
