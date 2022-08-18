@@ -29,7 +29,11 @@ fi
 export hostcolour
 
 unset task
-uname="`lsb_release -s -i` `uname -m`"
+if [ -x /usr/bin/lsb_release ]; then
+	uname="`lsb_release -s -i` `uname -m`"
+else
+	uname="`grep ^NAME= /etc/os-release | cut -d'"' -f2` `uname -m`"
+fi
 if [ -x /usr/bin/whoami ]; then
 	USER=`whoami`
 fi
