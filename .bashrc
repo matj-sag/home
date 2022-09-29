@@ -118,26 +118,24 @@ if [ "$PS1" ]; then
 		if [ -z "$paths" ]; then
 			paths=.
 		fi
-		echo "pat=$pat"
-		echo "paths=$paths"
 		if [ "`uname`" != "SunOS" ]; then
 			if [ -z "$1" ]; then
 				set -x
-				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -print0 | xargs -0 grep --color=auto -i "$pat" 
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and -not -name '*.log' -print0 | xargs -0 grep --color=auto -i "$pat" 
 				set +x
 			else 
 				set -x
-				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and "$@" -print0 | xargs -0 grep --color=auto -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and -not -name '*.log' -and "$@" -print0 | xargs -0 grep --color=auto -i "$pat"
 				set +x
 			fi
 		else
 			if [ -z "$1" ]; then
 				set -x
-				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f | xargs grep --color=auto -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and -not -name '*.log' | xargs grep --color=auto -i "$pat"
 				set +x
 			else 
 				set -x
-				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and "$@" | xargs grep --color=auto -i "$pat"
+				find $paths -not -path '*/output-*/*' -and -not -path '*/.svn/*' -and -type f -and -not -name '*.log' -and "$@" | xargs grep --color=auto -i "$pat"
 				set +x
 			fi
 		fi
