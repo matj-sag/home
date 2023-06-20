@@ -1,0 +1,21 @@
+#!/bin/bash --
+
+mode=$1
+
+if test -z "$1"; then
+	echo Usage: $0 "[get|erase]" 1>&2
+	exit 1
+fi
+
+if test -z "$GPG_TTY" || [[ "$GPG_TTY" == "not a tty" ]]; then
+	echo "GPG_TTY is not a valid tty, reading in your access token will likely not be possible." 1>&2
+	echo "See https://iwiki.eur.ad.sag/display/apama/Troubleshooting+git+setup+issues for how to fix this" 1>&2
+fi
+
+if [[ "$mode" == "get" ]]; then
+	echo GET_PASSPHRASE "jfrog-$USER@softwareag.com" "+" "+" "Enter+JFrog+identity+token+for+$USER@softwareag.com" | gpg-connect-agent | grep OK | xxd -r -p
+elif [[ "$mode" == "erase" ]]; then
+	echo CLEAR_PASSPHRASE "jfrog-$USER@softwareag.com" | gpg-connect-agent &>/dev/null
+else
+	echo "Invalid mode: $mode. Valid values are get or erase" 1>&2
+fi

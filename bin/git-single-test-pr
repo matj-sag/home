@@ -6,10 +6,10 @@ if [ -z "$2" ]; then
 fi
 set -e
 
-BRANCHNAME=dev/`git status | grep modified: | cut -d: -f2 | cut -d/ -f1 | awk '{print $1}'`
+BRANCHNAME=dev/`git status | grep modified: | cut -d: -f2 | cut -d/ -f1 | awk '{print $1}' | head -n1`
 CURRENTBRANCH=`git branch | grep ^* | awk '{print $2}'`
 git checkout -b $BRANCHNAME
 git commit -a -m"$1" -m"$2"
-git push
+git push -u origin
 git switch $CURRENTBRANCH
 git branch -D $BRANCHNAME

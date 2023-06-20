@@ -34,6 +34,8 @@
 
 # If running interactively, then:
 if [ "$PS1" ]; then
+
+	. /etc/profile
     
     # machine-specifics
     HOST=`hostname`
@@ -68,6 +70,12 @@ if [ "$PS1" ]; then
 	function addup()
 	{
 		cat | sed '1s/^/8k /;2,$s/$/ +/;$s/$/ p/' | dc
+	}
+	function mean()
+	{
+		data=`cat`
+		num=$(echo $data | wc -w)
+		sed '1s/^/8k /;2,$s/$/ +/;'"\$s,$, $num / p," <<<$data | dc
 	}
 
 	function xpy()
@@ -211,11 +219,13 @@ if [ "$PS1" ]; then
        fi
     fi
 
-    export DEBEMAIL=mjj29@debian.org
     export LOCKPRG=/usr/bin/vlock
+    export DEBEMAIL=mjj29@debian.org
     export QUILT_PATCHES=debian/patches
 
 # apama stuff
+export BAS_ARTIFACTORY_USERNAME=$USER@softwareag.com
+ export BAS_ARTIFACTORY_TOKEN=`cache-jfrog-token get`
 export AP_ASCII_COLOURS=true
 export AP_IGNORE_MISSING_TEST_DIRS=true
 export APB_SKIP_VERSION=true
