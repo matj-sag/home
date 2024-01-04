@@ -24,6 +24,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'vim-syntastic/syntastic'
 Plug 'tpope/vim-fugitive'
 Plug 'mjj29/vim-epl'
+Plug 'github/copilot.vim'
 call plug#end()
 set noexpandtab
 set softtabstop=3
