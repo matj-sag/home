@@ -31,7 +31,6 @@
          ;;
     esac ; fi
 
-
 # If running interactively, then:
 if [ "$PS1" ]; then
 
