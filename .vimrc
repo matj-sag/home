@@ -25,6 +25,7 @@ Plug 'vim-syntastic/syntastic'
 Plug 'tpope/vim-fugitive'
 Plug 'mjj29/vim-epl'
 Plug 'github/copilot.vim'
+Plug 'CopilotC-Nvim/CopilotChat.nvim'
 call plug#end()
 set noexpandtab
 set softtabstop=3
@@ -49,6 +50,9 @@ set background=dark
 autocmd FileType make set noet
 set shm=AITt
 set noequalalways
+let g:copilot_chat_disable_separators = "no"
+let g:copilot_chat_proxy = ""
+lua _COPILOT_CHAT_GLOBAL_CONFIG = _COPILOT_CHAT_GLOBAL_CONFIG or {}
 
 if $TERM=='screen'
    exe "set title titlestring=vim:%f"
@@ -80,6 +84,10 @@ let g:vim_json_syntax_conceal = 0
 
 noremap <silent> <PageUp> :call smooth_scroll#up(&scroll, 3, 1)<CR>
 noremap <silent> <PageDown> :call smooth_scroll#down(&scroll, 3, 1)<CR>
+nnoremap <leader>cce <cmd>CopilotChatExplain<cr>
+nnoremap <leader>cct <cmd>CopilotChatTests<cr>
+xnoremap <leader>ccv :CopilotChatVisual<cr>
+xnoremap <leader>ccx :CopilotChatInPlace<cr>
 
 autocmd VimEnter * NERDTree | wincmd p
 
