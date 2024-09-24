@@ -199,7 +199,7 @@ if [ "$PS1" ]; then
 
     # SSH agent
     if [[ "`uname -n`" == "illythia" || "`uname -n`" == "ianthe" ]]; then
-       keychain --quiet $HOME/.ssh/id_rsa  $HOME/.ssh/identity E62FA358
+       keychain --quiet $HOME/.ssh/id_rsa $HOME/.ssh/id_github.com_matj-sag $HOME/.ssh/identity EB3CAF8D422C8624
        . $HOME/.keychain/illythia-sh
        . $HOME/.keychain/illythia-sh-gpg
     elif test -x "`which keychain`"
