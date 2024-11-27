@@ -223,8 +223,6 @@ if [ "$PS1" ]; then
     export QUILT_PATCHES=debian/patches
 
 # apama stuff
-export BAS_ARTIFACTORY_USERNAME=$USER@softwareag.com
- export BAS_ARTIFACTORY_TOKEN=`cache-jfrog-token get`
 export AP_ASCII_COLOURS=true
 export AP_IGNORE_MISSING_TEST_DIRS=true
 export APB_SKIP_VERSION=true
