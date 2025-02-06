@@ -1,0 +1,20 @@
+export $(dbus-launch)
+autorandr --change
+setxkbmap dvorak
+setxkbmap -option caps:hyper
+/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1&
+udiskie &
+tint2&
+nm-applet --indicator &
+xss-lock --transfer-sleep-lock -- i3lock -c 000000 -n &
+xset s 300 &
+xfce4-power-manager &
+dunst &
+blueman-applet&
+x-terminal-emulator&
+mate-power-manager&
+ibus-daemon&
+pasystray&
+1password&
+for i in ~matj/.local/share/applications/chrome-*.desktop; do sed -n '/^Exec/s/Exec=//p' "$i" | sed 's/$/\&/'; done  | sh -
+exec xmonad
