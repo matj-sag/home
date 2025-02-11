@@ -141,6 +141,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
 	 , ((modm, xK_g), workspaceGridSelect)	 
 
+	 , ((modm .|. shiftMask, xK_s), spawn "i3lock -c 000000 && sudo pm-suspend") -- Lock screen and suspend
+
+	 , ((modm .|. shiftMask, xK_l), spawn "i3lock -c 000000")
+
+	 , ((modm, xK_Print), spawn "flameshot gui")
+
     ]
     ++
 

@@ -1,0 +1,28 @@
+#!/bin/sh --
+
+autorandr --change
+setxkbmap dvorak
+setxkbmap -option caps:hyper
+xset s 300 
+programs="/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+udiskie 
+tint2
+nm-applet --indicator 
+xss-lock --transfer-sleep-lock -- i3lock -c 000000 -n 
+xfce4-power-manager 
+dunst 
+blueman-applet
+x-terminal-emulator
+mate-power-manager
+ibus-daemon
+pasystray
+1password"
+echo "$programs" | while read line; do
+	prog=`echo $line | awk '{print $1}'`
+	if ! ps aux | grep -v grep | grep -q $prog ; then
+		echo $prog is not running
+		$line &
+	else
+		echo $prog is running
+	fi
+done

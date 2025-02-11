@@ -1,4 +1,4 @@
 #!/bin/sh --
 
-setxkbmap gb dvorak
+setxkbmap us dvorak
 setxkbmap -option caps:hyper
