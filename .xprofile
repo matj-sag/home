@@ -1,4 +1,7 @@
 export $(dbus-launch)
+TOUCHPAD_NAME=$(xinput list --name-only | grep -i 'touchpad')
+xinput set-prop "$TOUCHPAD_NAME" "libinput Tapping Enabled" 1
+xinput set-prop "$TOUCHPAD_NAME" "libinput Natural Scrolling Enabled" 1
 /home/matj/bin/startup
 for i in ~matj/.local/share/applications/chrome-*.desktop; do sed -n '/^Exec/s/Exec=//p' "$i" | sed 's/$/\&/'; done  | sh -
 exec xmonad
