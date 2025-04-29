@@ -1,0 +1,17 @@
+panel_items = :SBC
+time1_format=%H:%M:%S
+time1_font = DejaVu Sans 10
+panel_monitor = all
+panel_position = top right horizontal
+taskbar_mode = single_desktop
+panel_layer = normal
+panel_size = 250 25
+background_color = #333333 60
+border_color = #999999 70
+border_width = 1
+strut_policy = follow_size
+clock_font_color = #ffffff 100
+battery_font_color = #ffffff 100
+task_font_color = #ffffff 100
+taskbar_name_font_color = #ffffff 100
+taskbar_active_font_color = #33ff33 100

@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=AWS Client VPN
+Exec=/opt/openaws/pk-aws-vpn-client
+Type=Application
+Categories=Utility;
