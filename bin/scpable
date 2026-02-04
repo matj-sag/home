@@ -5,7 +5,7 @@ if [ "" = "$1" ]; then
 else
 	while [ "" != "$1" ]; do
 		P="`readlink -f "$1"`"
-		echo `whoami`@`hostname`:$P
+		echo `whoami`@`hostname -f`:$P
 		shift
 	done
 fi

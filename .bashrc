@@ -228,6 +228,9 @@ export AP_IGNORE_MISSING_TEST_DIRS=true
 export APB_SKIP_VERSION=true
 export XPYBUILD_WORKERS_PER_CPU=0.2
 export LOG4J_FORMAT_MSG_NO_LOOKUPS=true
+export CUMULOCITY_EMAIL=matthew.johnson@cumulocity.com
+export APB_C8Y_CLOUD_PASSWORD_VAULT_ITEM="eu-latest tenant"
+export APB_C8Y_CLOUD_USERNAME="matj"
 if [ "$TERM" == "rxvt-unicode" ]; then export TERM=rxvt; fi
 fi
     # env vars

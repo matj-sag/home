@@ -23,5 +23,7 @@
 	defaultBranch = main
 [safe]
 	directory = /etc/bind
+	directory = /work/jato/apama-cep
+	directory = /apama_build/br/develop
 [branch]
    autoSetupMerge = always

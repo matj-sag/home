@@ -36,7 +36,7 @@ fi
 
 eval `$WC/apama-src/getplatform.py | sed 's/ //g;s/^/export /'`
 
-APAMA_HOME="$WC/apama-src/output-$APAMA_BUILDTYPE-$MODE/SoftwareAG/Apama"
+APAMA_HOME="$WC/apama-src/output-$APAMA_BUILDTYPE-$MODE/Apama"
 
 export APAMA_HOME
 
