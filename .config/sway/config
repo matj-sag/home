@@ -1,0 +1,98 @@
+set $term x-terminal-emulator
+set $mod Mod4
+
+input * {
+	xkb_layout us
+	xkb_variant dvorak
+	xkb_options caps:hyper,shift:both
+}
+
+input type:touchpad {
+	tap enabled
+	natural_scroll enabled
+}
+
+output DP-6 resolution 2560x1440 position 5944,1200 scale 1.0 transform normal
+output HDMI-A-1 resolution 1920x1200 position 8504,941 scale 1.0 transform normal
+output eDP-1 resolution 1920x1080 position 8504,2141 scale 1.0 transform normal
+output DP-7 resolution 1920x1080 position 4864,967 scale 1.0 transform 270
+output DP-3 resolution 2560x1440 position 10424,2141 scale 1.0 transform normal
+output DP-4 resolution 2560x1440 position 12984,2141 scale 1.0 transform normal
+
+
+### Startup stuff
+exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+
+exec_always {
+    systemctl --user import-environment WAYLAND_DISPLAY XDG_RUNTIME_DIR XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+    systemctl --user restart xdg-desktop-portal
+    systemctl --user restart xdg-desktop-portal-wlr
+}
+
+
+### Launch bar
+exec waybar
+exec nm-applet --indicator
+exec blueman-applet
+exec udiskie
+exec dunst
+exec ibus-daemon -drx
+exec swayidle -w \
+  timeout 300 'swaylock -f -c 000000' \
+  timeout 600 'swaymsg "output * dpms off"' \
+  resume 'swaymsg "output * dpms on"' lock 'swaylock -f -c 000000'
+
+default_border pixel 1
+focus_wrapping workspace
+
+bindsym $mod+space exec /home/matj/bin/cycle_sway_layout.sh
+bindsym $mod+Return exec $term
+bindsym $mod+Shift+c kill
+bindsym $mod+p exec wofi --show drun
+bindsym $mod+t floating toggle
+floating_modifier $mod
+# Cycle through windows in a tabbed container
+bindsym $mod+Tab focus next window
+bindsym $mod+Shift+Tab focus prev window
+bindsym $mod+Shift+r exec swaymsg reload
+bindsym $mod+Shift+l exec swaylock -f -c 000000
+bindsym $mod+Shift+s exec "swaylock -f -c 000000 && systemctl suspend"
+
+
+set $ws1 "1: Mail/Chat/Calendar"
+set $ws2 "2: Drive/Password"
+set $ws3 "3: Web"
+set $ws4 "4: Docs"
+set $ws5 "5: Remote code"
+set $ws6 "6: Local code"
+set $ws7 "7: Meet/Youtube"
+set $ws8 "8: Firefox"
+set $ws9 "9: Remote Desktop"
+
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+bindsym $mod+7 workspace $ws7
+bindsym $mod+8 workspace $ws8
+bindsym $mod+9 workspace $ws9
+
+bindsym $mod+shift+right move workspace to output right
+bindsym $mod+shift+left move workspace to output left
+bindsym $mod+shift+up move workspace to output up
+bindsym $mod+shift+down move workspace to output down
+
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9
+
+bindsym --release Print exec flameshot gui
