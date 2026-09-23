@@ -87,13 +87,28 @@ Run in parallel. Details of query syntax and pitfalls are in
 - **Google Drive** — `list_recent_files` with `orderBy: lastModifiedByMe`.
   Documents they wrote and shared are often awaiting feedback. Ignore personal
   files; this account's Drive holds them.
-- **Local AI sessions** — `~/.claude/projects/*/*.jsonl`, one file per Claude
-  Code session. The first user message of each reconstructs what it was about,
-  and the file mtime gives when it was last touched. This is the only view of
-  the user's AI work. Sessions abandoned mid-thread are good band 3 candidates.
+- **AI sessions, across every machine** — run
+  `python3 ~/.claude/skills/day-plan/scripts/scan-sessions.py --days 30`.
 
-**Not reachable:** claude.ai web chats, Google Chat. Say so once at the end, so
-the user knows which part of the picture they are holding themselves.
+  Transcripts are **per-machine** and no host can see another's, so the laptop
+  alone shows well under half the picture. The script covers all three stores:
+
+  | Host | Store | Covers |
+  | --- | --- | --- |
+  | local | `~/.claude/projects` | the laptop |
+  | devpod | `/workspaces/apamabld/.claude/projects` via ssh | dev container work; `/home/apamabld` is a symlink onto the Longhorn PVC, so this survives stop/start |
+  | looter | `/users/ukcam/matj/.claude/projects` via ssh | the shared home, so the whole wider machine estate in one read |
+
+  Each line is date, host, project, size and the opening prompt, which is enough
+  to recognise what a session was. Size is a rough proxy for how deep it went.
+  Sessions abandoned mid-thread are good band 3 candidates.
+
+  If a host is unreachable the script says so on stderr — **pass that on**. The
+  devpod is often stopped, and a missing machine is a missing slice of the
+  picture, not an absence of work.
+
+**Not reachable:** claude.ai web chats and Google Chat. Say so once at the end,
+so the user knows which part of the picture they are holding themselves.
 
 ## State
 
