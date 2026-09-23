@@ -87,6 +87,44 @@ Expect part 3 to be substantial — historically most of the section. Do not
 quietly drop an entry just because no ticket was found for it; an entry with no
 ticket is a gap to report, never a resolved item.
 
+## Flagging for the executive summary
+
+The page carries an **"Executive summary for sharing with other teams"** section,
+filled in after the meeting and read outside the Apama team. Part of this pass is
+deciding which customer issues need that wider visibility.
+
+Locate the section by its heading rather than by position, and **never write into
+it** — it is filled in after the meeting, by a human, with the meeting's
+conclusions. This task only nominates candidates.
+
+The bar is not severity in the abstract. It is:
+
+> hot enough that senior management need to know **before it reaches them from
+> the customer**.
+
+The purpose is to deny anyone a surprise. Judge from the comment threads and
+flag an issue when any of these hold:
+
+- The customer has said, or clearly implied, that they are escalating internally,
+  going to their account team, or raising it with their own management.
+- Someone senior on the customer side has joined the thread, or the tone has
+  shifted from technical to contractual.
+- It touches a commitment with a date — a release the customer is waiting on, a
+  go-live, a deadline named elsewhere on this page.
+- It is a production outage or data-loss risk on a named account, whatever the
+  current ticket status.
+- We are the blocker and have been for a while, especially where support has
+  asked more than once with no substantive answer.
+- It is being discussed in a chat room that includes people outside R&D.
+
+Severity fields and the CST hot-issue flag are corroboration, not the test. An
+issue can meet this bar while its ticket still looks routine — that is exactly
+the case worth catching, because nobody else will catch it.
+
+For each flagged issue give: the customer, one line on what it is, and **why it
+needs the visibility now** — the trigger, not the history. Keep it to the few
+that genuinely qualify; flagging everything is the same as flagging nothing.
+
 ## Follow-up mode
 
 The user will often come back with extra tickets found in chat that the filter
