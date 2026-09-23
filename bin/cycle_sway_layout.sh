@@ -14,5 +14,5 @@ case "$CURRENT" in
   "splith") swaymsg layout splitv ;;
   "splitv") swaymsg layout tabbed ;;
   "tabbed") swaymsg layout splith ;;
-	*) swaymsg layout splitv ;;
+	*) swaymsg layout tabbed ;;
 esac
