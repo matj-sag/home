@@ -25,7 +25,18 @@ thread that simply stopped, a proposal nobody replied to. When two items are
 otherwise equal, the silent one goes first, and something that pinged this
 morning should usually not be in band 1 at all.
 
-Inputs to that, roughly in order of weight:
+**Start with continuity: what was being worked on yesterday is probably today's
+work.** Look for the thread with the heaviest activity over the last one to three
+days — commits, PRs, AI sessions clustered on one topic — and treat it as the
+default answer to "what should I do today", unless something with a date
+displaces it. Then find its **concrete next steps** and put those in band 1.
+
+Active work does **not** belong in band 2. Something moving well still has a next
+action, and that next action is usually the most useful line in the whole list.
+Band 2 is for things that are progressing *without you*. If the user is the one
+pushing it, it is band 1.
+
+Other inputs, roughly in order of weight:
 
 1. **A commitment with a date.** A release date, a customer deadline, a promise
    made in a thread. Check the current GEM page's "Extra agenda items" for dates
@@ -167,6 +178,26 @@ improves rather than repeating itself:
   time. Without this the same dormant PRs appear every morning and the user
   learns to skim past the whole thing — which kills the skill.
 - Offer to snooze or dismiss anything at the end, and write the file.
+
+## Naming things
+
+**Never show a bare identifier.** `PAB-5350`, `#4444` and "session (devpod, 11
+Sept)" are meaningless on their own — the user will not recognise them and cannot
+act on them. Always lead with what the thing *is*, and put the reference after:
+
+- Bad: `apama-cep#4444` — 22 days
+- Good: repro for the uncatchable `<T> any` CastException (`apama-cep#4444`), 22 days
+
+For an AI session, describe it from its opening prompt. For a PR, use the part of
+the title that says what it does, not the ticket tag.
+
+Where the next action depends on it, say **where a PR actually is**: awaiting
+review, approved and mergeable, or blocked on checks. "Merge it" and "chase a
+reviewer" are different jobs.
+
+Do not report your own process. The user does not care that something "aged out
+of band 2 this run", which band it was in last week, or how the list was built.
+State what the thing is and what to do about it.
 
 ## Tone
 
