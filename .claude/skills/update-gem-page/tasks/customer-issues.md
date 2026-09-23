@@ -93,9 +93,18 @@ The page carries an **"Executive summary for sharing with other teams"** section
 filled in after the meeting and read outside the Apama team. Part of this pass is
 deciding which customer issues need that wider visibility.
 
-Locate the section by its heading rather than by position, and **never write into
-it** — it is filled in after the meeting, by a human, with the meeting's
-conclusions. This task only nominates candidates.
+It sits inside a **collapsible box** under `## Notes from today's meeting`, with
+the summary line "Executive summary for sharing with other teams (filled out
+after the meeting)". In the markdown rendering that box is flattened and its
+heading vanishes, so its contents read as ordinary meeting notes — read the page
+as HTML when you need to know what is actually inside it.
+
+It already carries a "Customer issues; highlights are:" list, one bold customer
+name per bullet followed by a short plain-language account (ACC, Modern Drive
+Technologies, Eaton, DHL in recent weeks). Match that shape when nominating.
+
+**Never write into it** — it is filled in after the meeting, by a human, with the
+meeting's conclusions. This task only nominates candidates.
 
 The bar is not severity in the abstract. It is:
 

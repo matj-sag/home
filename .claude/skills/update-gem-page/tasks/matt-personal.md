@@ -29,6 +29,20 @@ Order list 2 by likely interest, **not** chronologically:
 3. PRs and commits last. These are usually already compressed into one bullet
    by the user, and a long PR list buries the interesting items.
 
+### Some candidates belong in a different section
+
+A candidate that **requires an action from other people** is not a "Matt" bullet
+— it belongs under the top-level `## Extra agenda items for today`, which is for
+things the meeting must actually discuss or act on.
+
+Sort each candidate: *interesting to know* stays in the Matt list; *someone else
+now has to do something* is proposed for Extra agenda items. Say which you are
+proposing and why. The test is whether a reader has a task afterwards.
+
+For example, completing a Debian upgrade is of interest and belongs in the Matt
+bullets; retiring looter, which forces everyone to rebase branches and move to
+dev containers, is an agenda item. The same piece of work can generate both.
+
 Close phase 1 by reminding the user that conversations, reviews, advice and
 decisions steered are invisible to every source here, and are often the best
 content in this section.

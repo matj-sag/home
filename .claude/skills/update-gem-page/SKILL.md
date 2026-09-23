@@ -34,6 +34,15 @@ the wrong one gets copied forward next week.
 - Read it with `getConfluencePage` using `contentFormat: markdown` to see the
   current values; write back with `updateConfluencePage`.
 
+**Beware collapsible sections.** The page uses expand blocks (`<details>` /
+`<summary>` in HTML). The markdown rendering **drops the summary heading and
+inlines the contents**, so collapsed content looks like it belongs to the
+enclosing section and the heading appears to be missing entirely. When a task
+concerns content inside an expand — or you cannot find a heading the user says
+exists — re-read with `contentFormat: "html"`. The HTML body may be too large to
+return inline; it is saved to a file, so extract the part you need with jq or
+python rather than re-reading it whole.
+
 ## 2. Pick the tasks
 
 Ask which sections to refresh unless the user already said. Run only what was asked.
