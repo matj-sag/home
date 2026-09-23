@@ -1,0 +1,17 @@
+# Deny by default: Claude Code adds new state directories over time, and this
+# repo is shared. Anything not explicitly allowed below stays out.
+/*
+!.gitignore
+
+# Config (no secrets — checked). settings.local.json is machine-specific.
+!settings.json
+
+# Skills authored here. skills/synced/ is managed by claude.ai sync.
+!skills/
+skills/synced/
+
+# Durable memory notes only — NOT the .jsonl conversation transcripts, which
+# contain customer and internal detail and run to tens of megabytes.
+!projects/
+projects/*/*
+!projects/*/memory/

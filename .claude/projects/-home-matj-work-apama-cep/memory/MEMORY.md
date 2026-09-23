@@ -1,0 +1,1 @@
+- [tpsafe-rules source URLs](tpsafe-rules-source-urls.md) — patched third-party sourceURLs live in tpsafe-rules, not 3rd_party_dependencies.properties
