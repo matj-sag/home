@@ -17,6 +17,14 @@ forgetting *to do* something — it is forgetting that something exists at all.
 
 Rank by **what changes if you do nothing today**, not by recency and not by age.
 
+**Being notified about something makes it *less* important here, not more.** The
+user reads their own mail. Anything that arrived this morning will be seen
+anyway, and repeating it wastes the top of the list. The value of this skill is
+entirely in what produced **no notification** — a doc nobody commented on, a
+thread that simply stopped, a proposal nobody replied to. When two items are
+otherwise equal, the silent one goes first, and something that pinged this
+morning should usually not be in band 1 at all.
+
 Inputs to that, roughly in order of weight:
 
 1. **A commitment with a date.** A release date, a customer deadline, a promise
@@ -36,6 +44,15 @@ Inputs to that, roughly in order of weight:
 
 Everything else is band 2.
 
+### Never include
+
+- **Zone deployment PRs** (`c8y-ops-zone-*`). They matter for the GEM page, not
+  for the user's own day, and there are dozens of them. The `update-gem-page`
+  skill covers them.
+- Anything in `state.json`'s `dismissed` list. See **State** — reasons include
+  things the user simply cannot action, such as lacking permission on a project,
+  which is invisible from the data.
+
 ## Output: three bands, in this order
 
 ### 1. Needs you today
@@ -49,13 +66,24 @@ actually left. A list of eight things is useless on a day with two free hours,
 and saying so is part of the job.
 
 ### 2. In flight, fine for now
-Things genuinely in progress that do not need attention today. **Do not
-enumerate in detail** — one line each at most, or a count with names. This band
-exists to be reassuring, so the user can stop holding it in their head. If it
-takes more than a few lines, it is too verbose.
 
-Say explicitly when something is in this band *because* it is waiting on someone
-else, and when the wait becomes unreasonable.
+**Bullet these, one line each — never a run-on paragraph.** This band is a recall
+aid, not an exception report: its job is to keep reminding the user that things
+exist, so they can stop holding them in their head. Being broad is the point.
+Include documents written and shared, proposals out for feedback, threads
+awaiting a reply, PRs in review, and work-in-progress AI sessions — not only
+things with an open question.
+
+For each: what it is, who has it, and **how long since anything happened**. The
+age is what makes the band useful; it is how the user spots something drifting.
+
+Say explicitly when an item sits here *because* it is waiting on someone else,
+and flag when that wait is getting long.
+
+**Aging rule.** Anything whose last traffic is **more than ~14 days** old is no
+longer "in flight" — move it to band 3, and say that is why it moved. This is
+the main way things travel between bands, and it happens without the user doing
+anything, which is exactly the drift they want caught.
 
 ### 3. Could pick up again
 Dormant, but worth resurrecting. **Three to five, ranked by value, never a dump.**
@@ -127,6 +155,10 @@ improves rather than repeating itself:
 
 - **Read it first.** Honour `snoozed` and `dismissed` — never re-raise a
   dismissed item, and do not resurrect a snoozed one before its date.
+- **Record why.** Much of what makes an item unactionable is invisible in the
+  data: the user may lack permission on a project, or it may belong to someone
+  else. You cannot detect that, so when the user says it, write it to
+  `dismissed` with the reason and never surface it again.
 - **Band 1 is partly declared, not derived.** What the user considers actively
   in progress cannot be inferred reliably from systems. On the first run, propose
   a seed list from the evidence and ask them to confirm or correct it. Afterwards
