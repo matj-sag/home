@@ -11,13 +11,26 @@ this week's page and refreshes one or more sections in place.
 
 ## 1. Find this week's page
 
+**There is exactly one GEM page per week.** It is usually dated the Wednesday,
+but the meeting gets moved for scheduling, so the date in the title may be any
+weekday. Match on the **week**, never on "is it today's date".
+
 - Site (cloudId): `cumulocity.atlassian.net`, space key `apama`.
-- Title format: `YYYY-MM-DD Apama GEM Meeting`, dated the **Wednesday** of that week.
+- Title format: `YYYY-MM-DD Apama GEM Meeting`.
 - Find it with `searchConfluenceUsingCql`:
   `space = apama AND title ~ "Apama GEM Meeting" ORDER BY created DESC`
-  and pick the newest title whose date is today or the current week.
-- If the newest page is from a previous week, the copy hasn't been made yet — say
-  so and ask whether to update last week's page or wait.
+- Take the newest page and read the date out of its title. If that date falls in
+  the **current Monday-to-Sunday week**, that is this week's page — use it, even
+  if the date is not today and not a Wednesday.
+- If the newest page's date is in an earlier week, the copy for this week has
+  not been made yet. Say so and ask whether to update that page or wait. Do not
+  assume it is missing just because today is past Wednesday.
+
+**Never create a GEM page.** If one seems to be missing, ask. A second page for a
+week that already has one — under a different date, or because the meeting
+moved — is a real failure mode: it splits the week's notes across two pages and
+the wrong one gets copied forward next week.
+
 - Read it with `getConfluencePage` using `contentFormat: markdown` to see the
   current values; write back with `updateConfluencePage`.
 
