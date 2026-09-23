@@ -29,6 +29,7 @@ Ask which sections to refresh unless the user already said. Run only what was as
 | --- | --- | --- |
 | Zone deployments | `## Apama Cumulocity deployments` | `tasks/zone-deployments.md` |
 | Customer issues | `## Customer issues` | `tasks/customer-issues.md` |
+| Matt's personal section | `Matt:` bullets at the page foot | `tasks/matt-personal.md` |
 
 <!-- Add new tasks by creating tasks/<name>.md and adding a row here. Keep each
      task file self-contained: where the data lives, how to read it, and the
