@@ -1,11 +1,23 @@
 {
-  "active": [],
+  "active": [
+    {"id": "debian13-arm64", "note": "Debian 13 upgrade + arm64 docker images. All PRs merged and PAQ promoted 2026-09-24. FOLLOW-UP: first full build on the merged arm64 changes runs 2026-09-25 - check it landed clean before calling this done.", "added": "2026-09-24"},
+    {"id": "ai-agent-integration-doc", "note": "A Unified Approach to AI Agent Integration Across Cumulocity - sent for review 2026-09-24 ahead of the AI Advisory meeting on 2026-09-25 14:00. Waiting on reviewers.", "added": "2026-09-24"},
+    {"id": "support-ai", "note": "AI-assisted support triage (apama-cep#4508). Jelle is in; needs Claude access for the support team, which only Vikas can arrange. Vikas away as of 2026-09-22 - ping still not sent.", "added": "2026-09-24"}
+  ],
   "snoozed": [],
   "dismissed": [
     {"id": "COCI-5730", "reason": "no permission on the COCI project - cannot update or close"},
     {"id": "COCI-5747", "reason": "no permission on the COCI project - cannot update or close"},
     {"id": "c8y-ops-zone-*", "reason": "zone deployment PRs are GEM material, not personal work"}
   ],
-  "lastRun": "2026-09-23",
-  "lastShown": []
+  "lastRun": "2026-09-24",
+  "lastShown": [
+    "apama-cep#4518", "apama-infrastructure-server-containers#1013", "paq-debian13-promotion",
+    "ai-agent-integration-doc", "support-ai-vikas",
+    "dataprep-outbound-options", "blog-drafts-warren", "idp-architecture-diagram",
+    "ai-architecture-diagrams", "apama-cep#4508", "PAB-5351", "CST-4290",
+    "PAM-35398", "apama-in-c8y#7920",
+    "apama-in-c8y#7304", "apama-in-c8y#7305", "apama-infrastructure-server-containers#954",
+    "apama-infrastructure-server-containers#929", "apama-cep#4444", "PAB-5350"
+  ]
 }
